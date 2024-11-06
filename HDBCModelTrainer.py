@@ -8,6 +8,7 @@ from transformers import M2M100ForConditionalGeneration, M2M100Tokenizer
 from sklearn.ensemble import HistGradientBoostingClassifier
 from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
 from sklearn.feature_extraction.text import TfidfVectorizer 
+from sklearn.multioutput import MultiOutputClassifier
 import seaborn as sns
 import matplotlib.pyplot as plt
 import joblib
@@ -27,6 +28,7 @@ df["y4"] = df["Type 4"]
 df["x"] = df['Interaction content']
 
 df["y"] = df["y2"]
+labels = df[['Type 2', 'Type 3', 'Type 4']]
 
 # remove empty y
 df = df.loc[(df["y"] != '') & (~df["y"].isna()),]
@@ -169,42 +171,56 @@ print(X)
 
  
 #data prep
-y = temp.y.to_numpy()
+y = temp[['Type 2', 'Type 3', 'Type 4']]
+
+filtered_temp = temp.dropna(subset=['Type 2', 'Type 3', 'Type 4'])  # Drop rows with missing values in these columns
+filtered_temp = filtered_temp[filtered_temp['Type 2'] != '']  # Remove rows where Type 2 is empty
+filtered_temp = filtered_temp[filtered_temp['Type 3'] != '']  # Remove rows where Type 3 is empty
+filtered_temp = filtered_temp[filtered_temp['Type 4'] != '']  # Remove rows where Type 4 is empty
+
+y = filtered_temp[['Type 2', 'Type 3', 'Type 4']]  
+X = X[filtered_temp.index]
+# # remove bad test cases from test dataset
+# Test_size = 0.20
+# y_series = pd.Series(y)
+# print("y serioes")
+# print(y_series)
+# good_y_value = y_series.value_counts()[y_series.value_counts() >= 3].index
+# y_good = y[y_series.isin(good_y_value)]
+# X_good = X[y_series.isin(good_y_value)]
+# y_bad = y[y_series.isin(good_y_value) == False]
+# X_bad = X[y_series.isin(good_y_value) == False]
+#  test_size = X.shape[0] * 0.2 / X_good.shape[0]
+
+#print(f"new_test_size: {test_size}")
+#X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=0)
+# X_train = np.concatenate((X_train, X_bad), axis=0)
+# y_train = np.concatenate((y_train, y_bad), axis=0)
+print("Shape of X:", X.shape)
+print("Shape of y:", y.shape)
+
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=0)
 
-# remove bad test cases from test dataset
-Test_size = 0.20
-y_series = pd.Series(y)
-print("y serioes")
-print(y_series)
-good_y_value = y_series.value_counts()[y_series.value_counts() >= 3].index
-y_good = y[y_series.isin(good_y_value)]
-X_good = X[y_series.isin(good_y_value)]
-y_bad = y[y_series.isin(good_y_value) == False]
-X_bad = X[y_series.isin(good_y_value) == False]
-test_size = X.shape[0] * 0.2 / X_good.shape[0]
-
-print(f"new_test_size: {test_size}")
-X_train, X_test, y_train, y_test = train_test_split(X_good, y_good, test_size=test_size, random_state=0)
-X_train = np.concatenate((X_train, X_bad), axis=0)
-y_train = np.concatenate((y_train, y_bad), axis=0)
-
-
-
 #model select
-classifier = HistGradientBoostingClassifier(max_iter=2000, random_state=0)
+classifier = MultiOutputClassifier(HistGradientBoostingClassifier(max_iter=2000, random_state=0))
 #training
 classifier.fit(X_train, y_train)
 #testing
 y_pred = classifier.predict(X_test)
 
 #display results
-p_result = pd.DataFrame(classifier.predict_proba(X_test))
-p_result.columns = classifier.classes_
+p_result = pd.DataFrame(y_pred)
+p_result.columns = y.columns
 print(p_result)
 
-accuracy = accuracy_score(y_test, y_pred)
-print(f"Accuracy: {accuracy:.2f}")
+accuracies = []
+for i in range(y_test.shape[1]):
+    accuracy = accuracy_score(y_test.iloc[:, i], y_pred[:, i])
+    accuracies.append(accuracy)
+
+print(accuracies)
+average_accuracy = sum(accuracies) / len(accuracies)
+print(f"Average accuracy: {average_accuracy:.2f}")
 
 joblib.dump(tfidfconverter, 'tfidf_vectorizer.pkl')
 joblib.dump(classifier, 'HDBCModel.pkl')
