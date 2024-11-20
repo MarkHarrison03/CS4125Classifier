@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 import joblib
 
 
-df = pd.read_csv("C:\\Users\\Mark\\Desktop\\cs4125\\CS4125Classifier\\AppGallery.csv")
+df = pd.read_csv("AppGallery.csv")
 
 # convert the dtype object to unicode string
 df['Interaction content'] = df['Interaction content'].values.astype('U')
