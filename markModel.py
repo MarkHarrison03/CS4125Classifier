@@ -10,7 +10,7 @@ from sklearn.metrics import classification_report, confusion_matrix, accuracy_sc
 from sklearn.feature_extraction.text import TfidfVectorizer 
 
 
-df = pd.read_csv("C:\\Users\\Mark\\Desktop\\cs4125\\CS4125Classifier\\AppGallery.csv")
+df = pd.read_csv("AppGallery.csv")
 
 # convert the dtype object to unicode string
 df['Interaction content'] = df['Interaction content'].values.astype('U')
