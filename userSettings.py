@@ -6,7 +6,7 @@ class userSettings:
             cls._instance._initialized = False
         return cls._instance
     
-    def __init__self(self):
+    def __init__(self):
         if self._initialized:
             return
         
@@ -35,5 +35,5 @@ class userSettings:
                     f"Translate Text: {self.translate_text}, "
                     f"Noise Removal: {self.remove_noise}, "
                     f"Explainable: {self.explainable}, " 
-                    f"Verbose Output: {self.verbose_output}"
+                    f"Verbose Output: {self.verbose}"
                     )
