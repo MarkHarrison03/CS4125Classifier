@@ -14,7 +14,7 @@ def categorize(subject, email):
     print(subject)
     print(email)
     tfidfconverter = joblib.load('tfidf_vectorizer.pkl')
-    classifier = joblib.load('HDBCModel.pkl')
+    classifier = joblib.load('HGBCModel.pkl')
 
     x1 = tfidfconverter.transform([email]).toarray()
     x2 = tfidfconverter.transform([subject]).toarray()

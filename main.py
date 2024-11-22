@@ -1,5 +1,5 @@
 import SVMModel
-import HDBCModel
+import HGBCModel
 from userSettings import userSettings
 
 ## user input :
@@ -14,7 +14,7 @@ from userSettings import userSettings
 def get_model_choice():
     
     print("Choose a model for classification. If selecting multiple, separate your choices with commas:")
-    print("1. HDBC Model")
+    print("1. HGBC Model")
     print("2. SVM Model")
     choiceModel = input("Enter your choice e.g. 1 \n").strip()
     model = None
@@ -22,7 +22,7 @@ def get_model_choice():
         choices = choiceModel.split(",")
         for choice in choices:
             if choice.strip() == "1":
-                model = "HDBC"
+                model = "HGBC"
             if choice.strip() == "2":
                 model = "SVM"
     
@@ -77,12 +77,12 @@ def classify_email():
         email = input("Please enter email body text: ")
         model = configuration.ml_model
 
-        if model == "HDBC":
+        if model == "HGBC":
             try:
-                classification_hdbc = HDBCModel.categorize(subject, email)
-                print("\nHDBC Model Classification:", classification_hdbc)
+                classification_hgbc = HGBCModel.categorize(subject, email)
+                print("\nHGBC Model Classification:", classification_hgbc)
             except ValueError as e:
-                print(f"\nHDBC Model Error: {e}")
+                print(f"\nHGBC Model Error: {e}")
 
         elif model == "SVM":
             try:
