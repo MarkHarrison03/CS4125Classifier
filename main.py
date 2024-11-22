@@ -1,5 +1,5 @@
-import SVMModel
-import HDBCModel
+import models.modelClass.SVMModel as SVMModel
+import models.modelClass.HDBCModel as HDBCModel
 
 def get_model_choice():
     print("Choose a model for classification:")

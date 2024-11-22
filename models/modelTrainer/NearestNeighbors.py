@@ -1,10 +1,10 @@
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import classification_report, confusion_matrix
 import joblib
-from data_preprocessor import DataPreprocessor  # Updated preprocessor with `prepare_targets`
+from data_preprocessor.data_preprocessor import DataPreprocessor  # Updated preprocessor with `prepare_targets`
 
 # Load the dataset
 print("Loading dataset...")
@@ -55,24 +55,23 @@ X_train = np.concatenate((X_train, X_bad), axis=0)
 y_train = np.concatenate((y_train, y_bad), axis=0)
 print(f"Training set size: {X_train.shape[0]}, Testing set size: {X_test.shape[0]}\n")
 
-# Model selection
-print("Training the Random Forest model...")
-classifier = RandomForestClassifier(n_estimators=1000, random_state=0)
-classifier.fit(X_train, y_train)
-print("Model training completed.\n")
+# Train k-Nearest Neighbors model
+print("Training the k-Nearest Neighbors model...")
+knn_classifier = KNeighborsClassifier(n_neighbors=3)  # Set k=3 as an example
+knn_classifier.fit(X_train, y_train)
+print("k-Nearest Neighbors model training completed.\n")
 
 # Testing
-print("Evaluating the model...")
-y_pred = classifier.predict(X_test)
+print("Evaluating the k-Nearest Neighbors model...")
+y_pred_knn = knn_classifier.predict(X_test)
 
 # Display results
-print("Confusion Matrix:")
-print(confusion_matrix(y_test, y_pred))
-print("\nClassification Report:")
-print(classification_report(y_test, y_pred))
+print("Confusion Matrix (k-Nearest Neighbors):")
+print(confusion_matrix(y_test, y_pred_knn))
+print("\nClassification Report (k-Nearest Neighbors):")
+print(classification_report(y_test, y_pred_knn))
 
-# Save the preprocessor and model
-print("Saving the vectorizer and model...")
-preprocessor.save_vectorizer("tfidf_vectorizer.pkl")
-joblib.dump(classifier, "RandomForestModel.pkl")
-print("Model and vectorizer saved successfully.")
+# Save the model
+print("Saving the k-Nearest Neighbors model...")
+joblib.dump(knn_classifier, "KNNModel.pkl")
+print("k-Nearest Neighbors model saved successfully.\n")
