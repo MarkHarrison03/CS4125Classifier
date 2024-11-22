@@ -4,7 +4,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import classification_report, confusion_matrix
 import joblib
-from data_preprocessor import DataPreprocessor  # Updated preprocessor with `prepare_targets`
+from data_preprocessor.data_preprocessor import DataPreprocessor  # Updated preprocessor with `prepare_targets`
 
 # Load the dataset
 print("Loading dataset...")

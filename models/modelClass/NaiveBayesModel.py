@@ -1,5 +1,6 @@
 import numpy as np
 import joblib
+from data_preprocessor.data_preprocessor import DataPreprocessor  # Updated preprocessor with `prepare_targets`
 
 def categorize(subject, email):
     # Load the saved vectorizer and Naive Bayes model

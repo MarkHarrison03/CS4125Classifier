@@ -1,3 +1,6 @@
+import os
+import sys
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
@@ -5,11 +8,9 @@ from sklearn.ensemble import HistGradientBoostingClassifier
 from sklearn.multioutput import MultiOutputClassifier
 from sklearn.metrics import accuracy_score, classification_report
 import joblib
-from data_preprocessor import DataPreprocessor
-import os
-import warnings
-from data_preprocessor import DataPreprocessor
+from data_preprocessor.data_preprocessor import DataPreprocessor
 
+import warnings
 # Set LOKY_MAX_CPU_COUNT dynamically
 available_cores = os.cpu_count()
 os.environ['LOKY_MAX_CPU_COUNT'] = str(available_cores if available_cores else 4)
@@ -74,6 +75,6 @@ for i, label in enumerate(["Type 2", "Type 3", "Type 4"]):
 
 # Save the vectorizer and model
 print("Saving the vectorizer and model...")
-preprocessor.save_vectorizer("tfidf_vectorizer.pkl")
-joblib.dump(classifier, "HDBCModel.pkl")
+preprocessor.save_vectorizer("exported_models/HGBC/tfidf_vectorizer.pkl")
+joblib.dump(classifier, "exported_models/HGBC/HGBCModel.pkl")
 print("Model and vectorizer saved successfully.")
