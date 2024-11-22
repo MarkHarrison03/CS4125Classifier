@@ -10,8 +10,9 @@ from userSettings import userSettings
 ##    Preprocessing: Translation, Noise removal 
 ##    Classification: model choice, level of classification (1, 2, or 3 categories , each of increasing specificity)
 ##    Output: Verbose, Explainable
+
 def get_model_choice():
-    configuration = userSettings()
+    
     print("Choose a model for classification. If selecting multiple, separate your choices with commas:")
     print("1. HDBC Model")
     print("2. SVM Model")
@@ -60,38 +61,48 @@ def get_model_choice():
     print(configuration)
     
     return 
+def main_menu():
+    print("Welcome to the email classifier. Please select your option")
+    print("1. Classification")
+    print("2. Configuration")
+    print("3. Analytics")
+    print("4. Exit")
+
+    choice = input("Choose 1, 2, 3\n")
+    
+    return choice 
+
+def classify_email():
+        subject = input("Please enter subject line: ")
+        email = input("Please enter email body text: ")
+        model = configuration.ml_model
+
+        if model == "HDBC":
+            try:
+                classification_hdbc = HDBCModel.categorize(subject, email)
+                print("\nHDBC Model Classification:", classification_hdbc)
+            except ValueError as e:
+                print(f"\nHDBC Model Error: {e}")
+
+        elif model == "SVM":
+            try:
+                classification_svm = SVMModel.categorize(subject, email)
+                print("\nSVM Model Classification:", classification_svm)
+            except ValueError as e:
+                print(f"\nSVM Model Error: {e}")
+        else:
+            print("\nInvalid model. Please run the program again and update settings.")
+
+
+configuration = userSettings()
+
+while True:
+    choice = main_menu()
+    if choice == "1":
+        classify_email()
+    if choice == "2":
+        get_model_choice()
+    if choice == "4":
+        print("Exiting the program. Byebye!")
 get_model_choice()
-subject = input("Please enter subject line: ")
-email = input("Please enter email body text: ")
-
-
-"""if choice == "1":
-    try:
-        classification_hdbc = HDBCModel.categorize(subject, email)
-        print("\nHDBC Model Classification:", classification_hdbc)
-    except ValueError as e:
-        print(f"\nHDBC Model Error: {e}")
-
-elif choice == "2":
-    try:
-        classification_svm = SVMModel.categorize(subject, email)
-        print("\nSVM Model Classification:", classification_svm)
-    except ValueError as e:
-        print(f"\nSVM Model Error: {e}")
-
-elif choice == "3":
-    try:
-        classification_hdbc = HDBCModel.categorize(subject, email)
-        print("\nHDBC Model Classification:", classification_hdbc)
-    except ValueError as e:
-        print(f"\nHDBC Model Error: {e}")
-
-    try:
-        classification_svm = SVMModel.categorize(subject, email)
-        print("\nSVM Model Classification:", classification_svm)
-    except ValueError as e:
-        print(f"\nSVM Model Error: {e}")
-
-else:
-    print("\nInvalid choice. Please run the program again and select 1, 2, or 3.")
-"""
+classify_email()
