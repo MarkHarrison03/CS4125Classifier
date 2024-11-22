@@ -1,13 +1,15 @@
 import pandas as pd
+import os
 import joblib
 from sklearn.feature_extraction.text import TfidfVectorizer 
 from io import StringIO
 
 import numpy as np
-class HDBCModel:
+class HGBCModel:
     def categorize(subject, email):
-        tfidfconverter = joblib.load('tfidf_vectorizer.pkl')
-        classifier = joblib.load('HDBCModel.pkl')
+        root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../'))  
+        tfidfconverter = joblib.load(os.path.join(root_dir, 'exported_models/HGBC/tfidf_vectorizer.pkl'))
+        classifier = joblib.load(os.path.join(root_dir,'exported_models/HGBC/HGBCModel.pkl'))
 
         x1 = tfidfconverter.transform([email]).toarray()
         x2 = tfidfconverter.transform([subject]).toarray()

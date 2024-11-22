@@ -1,3 +1,6 @@
+import os
+import sys
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
@@ -38,8 +41,8 @@ print("Model training completed.\n")
 
 # Save the model and vectorizer
 print("Saving the model and vectorizer...")
-preprocessor.save_vectorizer("svm_tfidf_vectorizer.pkl")
-joblib.dump(svm_model, "SVMModel.pkl")
+preprocessor.save_vectorizer("exported_models/SVM/svm_tfidf_vectorizer.pkl")
+joblib.dump(svm_model, "exported_models/SVM/SVMModel.pkl")
 print("Model and vectorizer saved.\n")
 
 # Model evaluation

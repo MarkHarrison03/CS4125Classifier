@@ -4,8 +4,8 @@ import joblib
 class SVMModel:
     def categorize(subject, email):
         # Load the saved vectorizer and model
-        tfidfconverter = joblib.load('svm_tfidf_vectorizer.pkl')
-        classifier = joblib.load('SVMModel.pkl')
+        tfidfconverter = joblib.load('exported_models/SVM/svm_tfidf_vectorizer.pkl')
+        classifier = joblib.load('exported_models/SVM/SVMModel.pkl')
 
         # Vectorize the inputs
         subject_vec = tfidfconverter.transform([subject]).toarray()
