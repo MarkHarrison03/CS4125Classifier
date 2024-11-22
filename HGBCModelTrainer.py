@@ -75,5 +75,5 @@ for i, label in enumerate(["Type 2", "Type 3", "Type 4"]):
 # Save the vectorizer and model
 print("Saving the vectorizer and model...")
 preprocessor.save_vectorizer("tfidf_vectorizer.pkl")
-joblib.dump(classifier, "HDBCModel.pkl")
+joblib.dump(classifier, "HGBCModel.pkl")
 print("Model and vectorizer saved successfully.")
