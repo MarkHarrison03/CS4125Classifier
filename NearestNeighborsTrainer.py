@@ -73,5 +73,6 @@ print(classification_report(y_test, y_pred_knn))
 
 # Save the model
 print("Saving the k-Nearest Neighbors model...")
+preprocessor.save_vectorizer("nn_tfidf_vectorizer.pkl")
 joblib.dump(knn_classifier, "KNNModel.pkl")
 print("k-Nearest Neighbors model saved successfully.\n")

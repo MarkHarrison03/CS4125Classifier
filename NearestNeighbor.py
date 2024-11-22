@@ -3,8 +3,8 @@ import joblib
 
 def categorize(subject, email):
     # Load the saved vectorizer and Naive Bayes model
-    tfidfconverter = joblib.load('nb_tfidf_vectorizer.pkl')
-    classifier = joblib.load('NaiveBayesModel.pkl')
+    tfidfconverter = joblib.load('nn_tfidf_vectorizer.pkl')
+    classifier = joblib.load('KNNModel.pkl')
 
     # Vectorize the inputs
     subject_vec = tfidfconverter.transform([subject]).toarray()
