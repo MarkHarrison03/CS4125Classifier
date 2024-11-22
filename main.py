@@ -1,7 +1,7 @@
-import SVMModel
-import HGBCModel
+from models.modelClass.HGBCModel import HGBCModel
+from models.modelClass.SVMModel import SVMModel
 from userSettings import userSettings
-
+from ModelFactory import ModelFactory
 ## user input :
 ## subject line
 ## body 
@@ -76,24 +76,13 @@ def classify_email():
         subject = input("Please enter subject line: ")
         email = input("Please enter email body text: ")
         model = configuration.ml_model
-
-        if model == "HGBC":
-            try:
-                classification_hgbc = HGBCModel.categorize(subject, email)
-                print("\nHGBC Model Classification:", classification_hgbc)
-            except ValueError as e:
-                print(f"\nHGBC Model Error: {e}")
-
-        elif model == "SVM":
-            try:
-                classification_svm = SVMModel.categorize(subject, email)
-                print("\nSVM Model Classification:", classification_svm)
-            except ValueError as e:
-                print(f"\nSVM Model Error: {e}")
-        else:
-            print("\nInvalid model. Please run the program again and update settings.")
-
-
+        classifier = ModelFactory.get_model(model)
+        try:
+            classification = classifier.categorize(subject, email)
+            print(f"\n{'model'} Classification:", classification)
+        except ValueError as e:
+            print(f"\{'model'} Model Error: {e}")
+        
 configuration = userSettings()
 
 while True:
