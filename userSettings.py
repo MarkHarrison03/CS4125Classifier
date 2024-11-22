@@ -10,7 +10,7 @@ class userSettings:
         if self._initialized:
             return
         
-        self.ml_model = "model"
+        self.ml_model = None
         self.translate_text = False
         self.remove_noise = False
         self.verbose = False

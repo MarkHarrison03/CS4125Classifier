@@ -12,7 +12,7 @@ from data_preprocessor.data_preprocessor import DataPreprocessor
 
 # Load dataset
 print("Loading dataset...")
-df = pd.read_csv("AppGallery.csv")
+df = pd.read_csv("../../AppGallery.csv")
 print(f"Dataset loaded with {df.shape[0]} rows and {df.shape[1]} columns.\n")
 
 # Instantiate the preprocessor

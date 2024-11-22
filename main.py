@@ -1,7 +1,6 @@
 from models.modelClass.HGBCModel import HGBCModel
 from models.modelClass.SVMModel import SVMModel
 import models.modelClass.NearestNeighborModel
-import NaiveBayes
 
 from userSettings import userSettings
 from ModelFactory import ModelFactory
@@ -34,9 +33,9 @@ def get_model_choice():
             if choice.strip() == "2":
                 model = "SVM"
             if choice.strip() == "3":
-                model = "Naive Bayes"
+                model = "nb"
             if choice.strip() == "4":
-                model = "Nearest Neighbors"
+                model = "knn"
             if choice.strip() == "5":
                 model = "Secret other thing"
             
@@ -103,10 +102,17 @@ configuration = userSettings()
 while True:
     choice = main_menu()
     if choice == "1":
+        if configuration.ml_model is None:
+            print("No model selected. Redirecting to Configuration to select a model...")
+            get_model_choice()
+            if configuration.ml_model is None:
+                print("Model selection is required to proceed with classification. Returning to main menu.")
+                continue
         classify_email()
-    if choice == "2":
+    elif choice == "2":
         get_model_choice()
-    if choice == "4":
+    elif choice == "4":
         print("Exiting the program. Byebye!")
-get_model_choice()
-classify_email()
+        exit()
+    else:
+        print("Invalid choice. Please select a valid option.")
