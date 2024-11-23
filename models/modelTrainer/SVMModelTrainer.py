@@ -12,7 +12,7 @@ from data_preprocessor.data_preprocessor import DataPreprocessor
 
 # Load dataset
 print("Loading dataset...")
-df = pd.read_csv("../../AppGallery.csv")
+df = pd.read_csv("./AppGallery.csv")
 print(f"Dataset loaded with {df.shape[0]} rows and {df.shape[1]} columns.\n")
 
 # Instantiate the preprocessor
@@ -41,8 +41,8 @@ print("Model training completed.\n")
 
 # Save the model and vectorizer
 print("Saving the model and vectorizer...")
-preprocessor.save_vectorizer("exported_models/SVM/svm_tfidf_vectorizer.pkl")
-joblib.dump(svm_model, "exported_models/SVM/SVMModel.pkl")
+preprocessor.save_vectorizer("./exported_models/SVM/svm_tfidf_vectorizer.pkl")
+joblib.dump(svm_model, "./exported_models/SVM/SVMModel.pkl")
 print("Model and vectorizer saved.\n")
 
 # Model evaluation

@@ -8,7 +8,7 @@ from data_preprocessor.data_preprocessor import DataPreprocessor  # Updated prep
 
 # Load the dataset
 print("Loading dataset...")
-df = pd.read_csv("../../AppGallery.csv")
+df = pd.read_csv("./AppGallery.csv")
 print(f"Dataset loaded with {df.shape[0]} rows and {df.shape[1]} columns.\n")
 
 # Instantiate the preprocessor
@@ -73,6 +73,6 @@ print(classification_report(y_test, y_pred_knn))
 
 # Save the model
 print("Saving the k-Nearest Neighbors model...")
-preprocessor.save_vectorizer("../../exported_models/KNN/nn_tfidf_vectorizer.pkl")
-joblib.dump(knn_classifier, "../../exported_models/KNN/KNNModel.pkl")
+preprocessor.save_vectorizer("./exported_models/KNN/nn_tfidf_vectorizer.pkl")
+joblib.dump(knn_classifier, "./exported_models/KNN/KNNModel.pkl")
 print("k-Nearest Neighbors model saved successfully.\n")

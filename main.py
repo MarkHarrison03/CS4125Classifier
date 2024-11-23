@@ -1,118 +1,142 @@
 from models.modelClass.HGBCModel import HGBCModel
 from models.modelClass.SVMModel import SVMModel
-import models.modelClass.NearestNeighborModel
-
+from models.modelClass.NearestNeighborModel import KNNModel
 from userSettings import userSettings
 from ModelFactory import ModelFactory
-## user input :
-## subject line
-## body 
-## 
-## Strategy :
-##    Preprocessing: Translation, Noise removal 
-##    Classification: model choice, level of classification (1, 2, or 3 categories , each of increasing specificity)
-##    Output: Verbose, Explainable
+
 
 def get_model_choice():
-    
-    print("Choose a model for classification. If selecting multiple, separate your choices with commas:")
+    """
+    Allows the user to select one or more models and preprocessing options.
+    Updates the global configuration accordingly.
+    """
+    print("\nChoose a model for classification. Separate your choices with commas if selecting multiple:")
     print("1. HGBC Model")
     print("2. SVM Model")
     print("3. Naive Bayes Model")
     print("4. Nearest Neighbors Model")
-    print("this will be the other model :)")
-    print("6. Run All Models")    
-    choiceModel = input("Enter your choice e.g. 1 \n").strip()
-    
-    model = None
-    if choiceModel:
-        choices = choiceModel.split(",")
+    print("5. Secret Other Model")
+    print("6. Run All Models")
+    choice_model = input("Enter your choice (e.g., 1,2): ").strip()
+
+    selected_models = []
+    if choice_model:
+        choices = choice_model.split(",")
         for choice in choices:
             if choice.strip() == "1":
-                model = "HGBC"
-            if choice.strip() == "2":
-                model = "SVM"
-            if choice.strip() == "3":
-                model = "nb"
-            if choice.strip() == "4":
-                model = "knn"
-            if choice.strip() == "5":
-                model = "Secret other thing"
-            
-    
-    print("Choose settings for Preprocessing. If selecting multiple, separate your choices with commas:")
+                selected_models.append("HGBC")
+            elif choice.strip() == "2":
+                selected_models.append("SVM")
+            elif choice.strip() == "3":
+                selected_models.append("nb")
+            elif choice.strip() == "4":
+                selected_models.append("knn")
+            elif choice.strip() == "5":
+                selected_models.append("Secret Other Model")
+            elif choice.strip() == "6":
+                selected_models = ["HGBC", "SVM", "nb", "knn", "Secret Other Model"]
+                break
+
+    if not selected_models:
+        print("No models selected. Returning to main menu.")
+        return
+
+    print("\nChoose preprocessing settings:")
     print("1. Automatic text translation")
-    print("2. Noise Removal")
-    choicePre = input("Enter your choice e.g. 1,2 \n").strip()
-    
+    print("2. Noise removal")
+    choice_pre = input("Enter your choice (e.g., 1,2): ").strip()
+
     translate = False
-    noiseRemoval = False
-    
-    if choicePre:
-        choices = choicePre.split(",")
+    noise_removal = False
+    if choice_pre:
+        choices = choice_pre.split(",")
         for choice in choices:
             if choice.strip() == "1":
                 translate = True
-            if choice.strip() == "2":
-                noiseRemoval = True
-                
-    print("Choose settings for Preprocessing. If selecting multiple, separate your choices with commas:")
+            elif choice.strip() == "2":
+                noise_removal = True
+
+    print("\nChoose postprocessing settings:")
     print("1. Verbose output")
     print("2. Explainable AI")
-    choicePost = input("Enter your choice e.g. 2 \n").strip()
+    choice_post = input("Enter your choice (e.g., 2): ").strip()
+
     verbose = False
     explainable = False
-    
-    if choicePost:
-        choices = choicePost.split(",")
+    if choice_post:
+        choices = choice_post.split(",")
         for choice in choices:
             if choice.strip() == "1":
                 verbose = True
-            if choice.strip() == "2":
+            elif choice.strip() == "2":
                 explainable = True
-                          
-    configuration.update_settings( model, translate, noiseRemoval, verbose, explainable)
+
+    configuration.update_settings(
+        ml_model=selected_models,
+        translate_text=translate,
+        remove_noise=noise_removal,
+        verbose=verbose,
+        explainable=explainable,
+    )
+    print("\nConfiguration updated:")
     print(configuration)
-    
-    return 
+
+
 def main_menu():
-    print("Welcome to the email classifier. Please select your option")
+    """
+    Displays the main menu and returns the user's choice.
+    """
+    print("\nWelcome to the Email Classifier.")
     print("1. Classification")
     print("2. Configuration")
     print("3. Analytics")
     print("4. Exit")
+    return input("Choose an option (1/2/3/4): ").strip()
 
-    choice = input("Choose 1, 2, 3\n")
-    
-    return choice 
 
 def classify_email():
-        subject = input("Please enter subject line: ")
-        email = input("Please enter email body text: ")
-        model = configuration.ml_model
-        classifier = ModelFactory.get_model(model)
+    """
+    Performs email classification using the selected model(s) in the configuration.
+    """
+    subject = input("Please enter the subject line: ").strip()
+    email = input("Please enter the email body text: ").strip()
+
+    models = configuration.ml_models
+    if "Run All Models" in models:
+        models = ["HGBC", "SVM", "nb", "knn", "Secret Other Model"]
+
+    results = {}
+    for model_name in models:
         try:
+            classifier = ModelFactory.get_model(model_name)
             classification = classifier.categorize(subject, email)
-            print(f"\n{'model'} Classification:", classification)
+            results[model_name] = classification
         except ValueError as e:
-            print(f"\{'model'} Model Error: {e}")
-        
+            results[model_name] = f"Error: {e}"
+
+    print("\nClassification Results:")
+    for model_name, result in results.items():
+        print(f"- {model_name} Model: {result}")
+
+
 configuration = userSettings()
 
 while True:
     choice = main_menu()
     if choice == "1":
-        if configuration.ml_model is None:
-            print("No model selected. Redirecting to Configuration to select a model...")
+        if not configuration.ml_models:
+            print("No models selected. Redirecting to Configuration...")
             get_model_choice()
-            if configuration.ml_model is None:
-                print("Model selection is required to proceed with classification. Returning to main menu.")
+            if not configuration.ml_models:
+                print("Model selection is required to proceed. Returning to main menu.")
                 continue
         classify_email()
     elif choice == "2":
         get_model_choice()
+    elif choice == "3":
+        print("Analytics functionality is not implemented yet. Stay tuned!")
     elif choice == "4":
-        print("Exiting the program. Byebye!")
+        print("Exiting the program. Goodbye!")
         exit()
     else:
         print("Invalid choice. Please select a valid option.")
