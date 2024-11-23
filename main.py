@@ -15,6 +15,7 @@ def ensure_model_exists(model_name):
         "SVM": "./exported_models/SVM/SVMModel.pkl",
         "KNN": "./exported_models/KNN/KNNModel.pkl",
         "NB": "./exported_models/NB/NaiveBayesModel.pkl",
+        "CB": "./exported_models/CB/CatBoostModel.pkl",
     }
 
     trainer_scripts = {
@@ -22,6 +23,7 @@ def ensure_model_exists(model_name):
         "SVM": "models/modelTrainer/SVMModelTrainer.py",
         "KNN": "models/modelTrainer/NearestNeighborsTrainer.py",
         "NB": "models/modelTrainer/NaiveBayesTrainer.py",
+        "CB": "models/modelTrainer/CatBoostTrainer.py",
     }
 
     model_path = model_paths.get(model_name)
@@ -72,6 +74,7 @@ def get_model_choice():
     print("2. SVM Model")
     print("3. Naive Bayes Model")
     print("4. Nearest Neighbors Model")
+    print("5. CatBoost Model")
     print("5. Run All Models")
     choice_model = input("Enter your choice (e.g., 1,2): ").strip()
 
@@ -88,6 +91,8 @@ def get_model_choice():
             elif choice.strip() == "4":
                 selected_models.append("KNN")
             elif choice.strip() == "5":
+                selected_models.append("CB")
+            elif choice.strip() == "6":
                 selected_models = ["HGBC", "SVM", "NB", "KNN"]
                 break
 
