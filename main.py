@@ -1,11 +1,9 @@
-from models.modelClass.HGBCModel import HGBCModel
-from models.modelClass.SVMModel import SVMModel
-from models.modelClass.NearestNeighborModel import KNNModel
-from models.modelClass.NaiveBayesModel import NBModel
-from userSettings import userSettings
-from ModelFactory import ModelFactory
 import os
 import subprocess
+
+from ModelFactory import ModelFactory
+from userSettings import userSettings
+from decorator import log_function_call
 
 
 def ensure_model_exists(model_name):
@@ -38,6 +36,32 @@ def ensure_model_exists(model_name):
         print(f"Model '{model_name}' trained and saved successfully.")
 
 
+@log_function_call
+def classify_email():
+    """
+    Performs email classification using the selected model(s) in the configuration.
+    """
+    subject = input("Please enter the subject line: ").strip()
+    email = input("Please enter the email body text: ").strip()
+
+    models = configuration.ml_models
+    if "Run All Models" in models:
+        models = ["HGBC", "SVM", "NB", "KNN"]
+
+    results = {}
+    for model_name in models:
+        try:
+            classifier = ModelFactory.get_model(model_name)
+            classification = classifier.categorize(subject, email)
+            results[model_name] = classification
+        except ValueError as e:
+            results[model_name] = f"Error: {e}"
+
+    print("\nClassification Results:")
+    for model_name, result in results.items():
+        print(f"- {model_name} Model: {result}")
+
+@log_function_call
 def get_model_choice():
     """
     Allows the user to select one or more models and preprocessing options.
@@ -119,31 +143,6 @@ def main_menu():
     print("3. Analytics")
     print("4. Exit")
     return input("Choose an option (1/2/3/4): ").strip()
-
-
-def classify_email():
-    """
-    Performs email classification using the selected model(s) in the configuration.
-    """
-    subject = input("Please enter the subject line: ").strip()
-    email = input("Please enter the email body text: ").strip()
-
-    models = configuration.ml_models
-    if "Run All Models" in models:
-        models = ["HGBC", "SVM", "NB", "KNN"]
-
-    results = {}
-    for model_name in models:
-        try:
-            classifier = ModelFactory.get_model(model_name)
-            classification = classifier.categorize(subject, email)
-            results[model_name] = classification
-        except ValueError as e:
-            results[model_name] = f"Error: {e}"
-
-    print("\nClassification Results:")
-    for model_name, result in results.items():
-        print(f"- {model_name} Model: {result}")
 
 
 configuration = userSettings()
