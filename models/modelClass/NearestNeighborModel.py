@@ -4,8 +4,8 @@ import joblib
 class KNNModel:
     def categorize(subject, email):
         # Load the saved vectorizer and Naive Bayes model
-        tfidfconverter = joblib.load('nn_tfidf_vectorizer.pkl')
-        classifier = joblib.load('KNNModel.pkl')
+        tfidfconverter = joblib.load('./exported_models/KNN/nn_tfidf_vectorizer.pkl')
+        classifier = joblib.load('./exported_models/KNN/KNNModel.pkl')
 
         # Vectorize the inputs
         subject_vec = tfidfconverter.transform([subject]).toarray()
