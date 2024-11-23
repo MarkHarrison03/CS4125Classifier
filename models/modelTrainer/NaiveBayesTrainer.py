@@ -21,12 +21,12 @@ X, y = preprocessor.preprocess_dataframe(
     df,
     content_col="Interaction content",
     summary_col="Ticket Summary",
-    label_cols=["Type 2", "Type 3", "Type 4"]
+    label_cols=["Type 1", "Type 2", "Type 3", "Type 4"]
 )
 print(f"Preprocessing completed. Shape of X: {X.shape}, Shape of y: {y.shape}\n")
 
 print("Splitting data into train and test sets...")
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=0)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1, random_state=0)
 
 print("Training the Naive Bayes model wrapped with MultiOutputClassifier...")
 nb_classifier = MultiOutputClassifier(MultinomialNB())
@@ -37,7 +37,7 @@ print("Evaluating the Naive Bayes model...")
 y_pred = nb_classifier.predict(X_test)
 
 print("\nClassification Reports for each label:")
-for i, label in enumerate(["Type 2", "Type 3", "Type 4"]):
+for i, label in enumerate(["Type 1", "Type 2", "Type 3", "Type 4"):
     print(f"\nClassification Report for {label}:")
     print(classification_report(y_test.iloc[:, i], y_pred[:, i]))
 

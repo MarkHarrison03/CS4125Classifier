@@ -2,30 +2,44 @@ import re
 import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
 import joblib
+from translate import Translator
 
 class DataPreprocessor:
-    def __init__(self, max_features=2000):
+    def __init__(self, max_features=2000, target_language="en"):
+        self.translator = Translator(to_lang=target_language)  # Initialize the translator
         self.tfidf_vectorizer = TfidfVectorizer(max_features=max_features, min_df=4, max_df=0.90)
         self.noise_patterns = [
             r"(from :)|(subject :)|(sent :)|(r\s*:)|(re\s*:)",
-            r"\d+",  # Remove digits
-            r"[^0-9a-zA-Z]+",  # Remove non-alphanumeric characters
-            r"(\s|^).(\s|$)"  # Remove stray characters
+            r"\d+",
+            r"http\S+|www\S+",
+            r"<.*?>",
+            r"[^a-zA-Z\s]",
+            r"\s+"
         ]
 
-    def preprocess_text(self, text):
+    def preprocess_text(self, text, translate=True):
         if not isinstance(text, str):
             text = str(text)
         text = text.lower()
+
+        # Apply regex-based cleaning
         for pattern in self.noise_patterns:
             text = re.sub(pattern, " ", text)
         text = re.sub(r'\s+', ' ', text).strip()
+
+        # Translate to the target language if specified
+        if translate:
+            try:
+                text = self.translator.translate(text)
+            except Exception as e:
+                print(f"Translation failed for text: {text}. Error: {e}")
+                # Fallback to original cleaned text if translation fails
         return text
 
-    def preprocess_dataframe(self, df, content_col, summary_col, label_cols):
-        # Clean and vectorize text columns
-        df[content_col] = df[content_col].apply(self.preprocess_text)
-        df[summary_col] = df[summary_col].apply(self.preprocess_text)
+    def preprocess_dataframe(self, df, content_col, summary_col, label_cols, translate=True):
+        # Clean and translate text columns
+        df[content_col] = df[content_col].apply(lambda x: self.preprocess_text(x, translate=translate))
+        df[summary_col] = df[summary_col].apply(lambda x: self.preprocess_text(x, translate=translate))
 
         # Remove rows with missing labels
         valid_indices = df.dropna(subset=label_cols).index
@@ -41,7 +55,6 @@ class DataPreprocessor:
 
         return features, labels
 
-    #encapsulation babey
     def prepare_targets(self, df, target_columns, main_target):
         # Rename target columns
         for i, col in enumerate(target_columns, start=1):
