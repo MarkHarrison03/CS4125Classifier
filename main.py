@@ -1,8 +1,41 @@
 from models.modelClass.HGBCModel import HGBCModel
 from models.modelClass.SVMModel import SVMModel
 from models.modelClass.NearestNeighborModel import KNNModel
+from models.modelClass.NaiveBayesModel import NBModel
 from userSettings import userSettings
 from ModelFactory import ModelFactory
+import os
+import subprocess
+
+
+def ensure_model_exists(model_name):
+    """
+    Ensures that the model files exist. If not, trains the model using the corresponding trainer.
+    """
+    model_paths = {
+        "HGBC": "./exported_models/HGBC/HGBCModel.pkl",
+        "SVM": "./exported_models/SVM/SVMModel.pkl",
+        "KNN": "./exported_models/KNN/KNNModel.pkl",
+        "NB": "./exported_models/NB/NaiveBayesModel.pkl",
+    }
+
+    trainer_scripts = {
+        "HGBC": "models/modelTrainer/HGBCModelTrainer.py",
+        "SVM": "models/modelTrainer/SVMModelTrainer.py",
+        "KNN": "models/modelTrainer/NearestNeighborsTrainer.py",
+        "NB": "models/modelTrainer/NaiveBayesTrainer.py",
+    }
+
+    model_path = model_paths.get(model_name)
+    trainer_script = trainer_scripts.get(model_name)
+
+    if not model_path or not trainer_script:
+        raise ValueError(f"Invalid model name: {model_name}")
+
+    if not os.path.exists(model_path):
+        print(f"Model '{model_name}' not found. Training the model using {trainer_script}...")
+        subprocess.run(["python", trainer_script], check=True)
+        print(f"Model '{model_name}' trained and saved successfully.")
 
 
 def get_model_choice():
@@ -10,13 +43,12 @@ def get_model_choice():
     Allows the user to select one or more models and preprocessing options.
     Updates the global configuration accordingly.
     """
-    print("\nChoose a model for classification. Separate your choices with commas if selecting multiple:")
+    print("Choose a model for classification. Separate your choices with commas if selecting multiple:")
     print("1. HGBC Model")
     print("2. SVM Model")
     print("3. Naive Bayes Model")
     print("4. Nearest Neighbors Model")
-    print("5. Secret Other Model")
-    print("6. Run All Models")
+    print("5. Run All Models")
     choice_model = input("Enter your choice (e.g., 1,2): ").strip()
 
     selected_models = []
@@ -28,13 +60,11 @@ def get_model_choice():
             elif choice.strip() == "2":
                 selected_models.append("SVM")
             elif choice.strip() == "3":
-                selected_models.append("nb")
+                selected_models.append("NB")
             elif choice.strip() == "4":
-                selected_models.append("knn")
+                selected_models.append("KNN")
             elif choice.strip() == "5":
-                selected_models.append("Secret Other Model")
-            elif choice.strip() == "6":
-                selected_models = ["HGBC", "SVM", "nb", "knn", "Secret Other Model"]
+                selected_models = ["HGBC", "SVM", "NB", "KNN"]
                 break
 
     if not selected_models:
@@ -71,13 +101,10 @@ def get_model_choice():
             elif choice.strip() == "2":
                 explainable = True
 
-    configuration.update_settings(
-        ml_model=selected_models,
-        translate_text=translate,
-        remove_noise=noise_removal,
-        verbose=verbose,
-        explainable=explainable,
-    )
+    for model in selected_models:
+        ensure_model_exists(model)
+
+    configuration.update_settings(selected_models, translate, noise_removal, verbose, explainable)
     print("\nConfiguration updated:")
     print(configuration)
 
@@ -103,7 +130,7 @@ def classify_email():
 
     models = configuration.ml_models
     if "Run All Models" in models:
-        models = ["HGBC", "SVM", "nb", "knn", "Secret Other Model"]
+        models = ["HGBC", "SVM", "NB", "KNN"]
 
     results = {}
     for model_name in models:
