@@ -4,20 +4,24 @@ from models.modelClass.HGBCModel import HGBCModel
 from models.modelClass.SVMModel import SVMModel
 from models.modelClass.NearestNeighborModel import KNNModel
 from models.modelClass.NaiveBayesModel import NBModel
+from models.modelClass.CatBoostModel import CatBoostModel
+
 
 class ModelFactory:
     _models = {
         "hgbc": HGBCModel,
         "svm": SVMModel,
         "knn": KNNModel,
-        "nb": NBModel
+        "nb": NBModel,
+        "cb" : CatBoostModel
     }
 
     _model_paths = {
         "hgbc": ("./exported_models/HGBC/HGBCModel.pkl", "models.modelTrainer.HGBCModelTrainer"),
         "svm": ("./exported_models/SVM/SVMModel.pkl", "models.modelTrainer.SVMModelTrainer"),
         "knn": ("./exported_models/KNN/KNNModel.pkl", "models.modelTrainer.NearestNeighborsTrainer"),
-        "nb": ("./exported_models/NB/NBModel.pkl", "models.modelTrainer.NaiveBayesTrainer")
+        "nb": ("./exported_models/NB/NBModel.pkl", "models.modelTrainer.NaiveBayesTrainer"),
+        "cb": ("./exported_models/CB/CatBoostModel.pkl", "models.modelTrainer.CatBoostTrainer")
     }
 
     @staticmethod
