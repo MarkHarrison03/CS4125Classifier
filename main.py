@@ -1,10 +1,12 @@
 import os
+import sys
 import subprocess
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
 
 from ModelFactory import ModelFactory
 from userSettings import userSettings
-from decorator import log_function_call
-
+from decorator.decorator import log_function_call
+from decorator.inputDecorator import inputDecorator
 
 def ensure_model_exists(model_name):
     """
@@ -37,19 +39,19 @@ def ensure_model_exists(model_name):
         subprocess.run(["python", trainer_script], check=True)
         print(f"Model '{model_name}' trained and saved successfully.")
 
-
+@inputDecorator(target_language="en")
 @log_function_call
-def classify_email():
+def classify_email(subject, email):
     """
     Performs email classification using the selected model(s) in the configuration.
     """
-    subject = input("Please enter the subject line: ").strip()
-    email = input("Please enter the email body text: ").strip()
+    #subject = input("Please enter the subject line: ").strip()
+    #email = input("Please enter the email body text: ").strip()
 
     models = configuration.ml_models
     if "Run All Models" in models:
         models = ["HGBC", "SVM", "NB", "KNN"]
-
+    print(subject, email)
     results = {}
     for model_name in models:
         try:
@@ -75,7 +77,7 @@ def get_model_choice():
     print("3. Naive Bayes Model")
     print("4. Nearest Neighbors Model")
     print("5. CatBoost Model")
-    print("5. Run All Models")
+    print("6. Run All Models")
     choice_model = input("Enter your choice (e.g., 1,2): ").strip()
 
     selected_models = []
