@@ -1,3 +1,7 @@
+import csv
+
+import numpy as np
+
 from user_settings_singleton.UserSettingsSingleton import UserSettingsSingleton
 from ModelFactory import ModelFactory
 from decorator.decorator import log_function_call
@@ -19,7 +23,7 @@ def classify_email(subject, email):
 
     models = configuration.ml_models
     if "Run All Models" in models:
-        models = ["HGBC", "SVM", "NB", "KNN"]
+        models = ["HGBC", "SVM", "NB", "KNN", "CB"]
     print(subject, email)
     results = {}
     for model_name in models:
@@ -33,6 +37,66 @@ def classify_email(subject, email):
     print("\nClassification Results:")
     for model_name, result in results.items():
         print(f"- {model_name} Model: {result}")
+    save_classification_to_csv(subject, email, results, selected_models=models)
+
+
+import csv
+import os
+
+
+import os
+import csv
+import numpy as np
+
+def save_classification_to_csv(subject, email, results, selected_models, all_models=None, filename="classification_results.csv"):
+    """
+    Saves classification results to a CSV file with proper distribution into type-specific columns.
+    Ensures no double quotes are added in the CSV output and replaces double quotes with single quotes.
+    """
+    if all_models is None:
+        all_models = ["HGBC", "SVM", "NB", "KNN", "CB"]
+
+    # Prepare headers dynamically for all models and types
+    fieldnames = ["subject", "email"] + [f"{model}_Type{i}" for model in all_models for i in range(1, 5)]
+
+    # Prepare a single dictionary for the row
+    row = {"subject": subject, "email": email}
+
+    for model_name in selected_models:
+        classifications = results.get(model_name, [])  # Results for this model (list of lists)
+        if isinstance(classifications, np.ndarray):
+            classifications = classifications.tolist()  # Convert numpy array to a list
+
+        # Check and flatten extra nesting for "CB" or other models
+        while len(classifications) > 0 and isinstance(classifications[0], list):
+            classifications = classifications[0]  # Unwrap one level of nesting
+
+        for i in range(1, 5):  # Iterate over 4 types
+            if i <= len(classifications):  # Ensure the type index exists in the results
+                classification = classifications[i - 1]  # Get classification for this type
+                # Convert to string for CSV storage
+                if isinstance(classification, (list, np.ndarray)):
+                    row[f"{model_name}_Type{i}"] = ",".join(map(str, classification)) if classification else ""
+                else:
+                    row[f"{model_name}_Type{i}"] = str(classification) if classification else ""
+            else:
+                # Fill empty types with an empty string
+                row[f"{model_name}_Type{i}"] = ""
+
+    # Write the row to the CSV
+    try:
+        file_exists = os.path.exists(filename) and os.path.getsize(filename) > 0
+        with open(filename, mode="a", newline="", encoding="utf-8") as file:
+            # Configure the CSV writer to avoid quoting
+            writer = csv.DictWriter(file, fieldnames=fieldnames, quoting=csv.QUOTE_NONE, escapechar='\\')
+            if not file_exists:  # If the file is new or empty, write the header
+                writer.writeheader()
+            writer.writerow(row)
+        print(f"Classification result saved to {filename}.")
+    except Exception as e:
+        print(f"Error saving classification result to CSV: {e}")
+
+
 
 @log_function_call
 def get_model_choice():

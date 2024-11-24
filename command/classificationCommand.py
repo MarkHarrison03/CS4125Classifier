@@ -1,5 +1,6 @@
 from command.command import Command
 from utils.utils import classify_email, get_model_choice
+from analytics.AnalyticsFacade import AnalyticsFacade
 from user_settings_singleton.UserSettingsSingleton import UserSettingsSingleton
 
 
@@ -55,6 +56,9 @@ class ConfigureCommand(Command):
 
 
 class AnalyticsCommand(Command):
+    def __init__(self):
+        self.analytics = AnalyticsFacade()
+
     def execute(self):
         user_settings = UserSettingsSingleton.get_instance()
 
@@ -63,7 +67,34 @@ class AnalyticsCommand(Command):
         if user_settings.explainable:
             print("[EXPLAINABLE] This command provides analytics insights.")
 
-        print("Analytics command executed.")
+        print("\n=== Analytics Menu ===")
+        while True:
+            choice = self.analytics.display_menu()
+            if choice == "1":  # Compute Statistics
+                model_names = self.analytics.get_model_choices()
+                stats = self.analytics.compute_model_statistics(model_names)
+                if stats:  # Ensure stats is not None
+                    for type_label, percentages in stats.items():
+                        print(f"\n{type_label}:")
+                        for category, percentage in percentages.items():
+                            print(f"  {category}: {percentage:.2f}%")
+                else:
+                    print("No results available to compute statistics.")
+
+            elif choice == "2":  # Visualize Results
+                model_names = self.analytics.get_model_choices()
+                self.analytics.generate_visualization(model_names)
+
+            elif choice == "3":  # Display Results
+                model_names = self.analytics.get_model_choices()
+                self.analytics.display_results(model_names)
+
+            elif choice == "4":  # Exit
+                print("Exiting Analytics Menu.")
+                break
+
+            else:
+                print("Invalid choice. Please try again.")
 
 
 class ExitCommand(Command):

@@ -15,7 +15,7 @@ def main_menu():
     print("\nWelcome to the Email Classifier.")
     print("1. Classification")
     print("2. Configuration")
-    print("3. Analytics")
+    print("3. analytics")
     print("4. Exit")
     return input("Choose an option (1/2/3/4): ").strip()
 print("hi")
