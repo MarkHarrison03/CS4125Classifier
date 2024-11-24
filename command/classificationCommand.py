@@ -21,10 +21,6 @@ class ClassificationCommand(Command):
             configure_command = ConfigureCommand(self.configuration, self.root)
             configure_command.execute()
 
-            if not self.configuration.ml_models:
-                messagebox.showerror("Error", "No models selected. Returning to main menu.")
-                return
-
         try:
             results, finalSubject, finalEmail = classify_email(subject, email)
             self.show_results_window(finalSubject, finalEmail, results)

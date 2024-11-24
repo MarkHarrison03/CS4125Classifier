@@ -80,7 +80,6 @@ class EmailClassifierApp:
 
         strategy_names = [
             "Quick Strategy",
-            "Verbose Strategy",
             "Noise Removal Strategy",
             "Translate Strategy",
             "High Performance Strategy"
@@ -88,7 +87,6 @@ class EmailClassifierApp:
 
         strategy_map = {
             "Quick Strategy": QuickStrategy(self.configuration),
-            "Verbose Strategy": VerboseStrategy(self.configuration),
             "Noise Removal Strategy": NoiseRemovalStrategy(self.configuration),
             "Translate Strategy": TranslateStrategy(self.configuration),
             "High Performance Strategy": HighPerformanceStrategy(self.configuration),

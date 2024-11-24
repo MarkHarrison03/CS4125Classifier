@@ -108,10 +108,9 @@ def get_model_choice():
 def use_preset_model_choice():
         print("Please choose your preset strategy: ")
         print("1. Quick Strategy: Single, lightweight model with minimal preprocessing")
-        print("2. Verbose Strategy: All models are ran, with all preprocessing options enabled")
-        print("3. Noise Reduction Strategy: Three models are ran, with only noise reduction enabled")
-        print("4. Translation Strategy: Tgree models are ran, with only translation enabled")
-        print("5. High Performance Strategy: Two lightweight models are ran, with only noise reduction enabled")
+        print("2. Noise Reduction Strategy: Three models are ran, with only noise reduction enabled")
+        print("3. Translation Strategy: Tgree models are ran, with only translation enabled")
+        print("4. High Performance Strategy: Two lightweight models are ran, with only noise reduction enabled")
         
         choice = input("Enter your choice (1/2/3): ").strip()
         if choice == "1":
