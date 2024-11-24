@@ -15,7 +15,7 @@ class inputDecorator:
 
     def __call__(self, func):
         @functools.wraps(func)
-        def wrapper(*args, **kwargs):
+        def wrapper( *args, **kwargs):
             subject = input("Please enter the subject line: ").strip()
             email = input("Please enter the email body text: ").strip()
 

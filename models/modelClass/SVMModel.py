@@ -20,4 +20,11 @@ class SVMModel(IModel):
             )
 
         y_pred = classifier.predict(X)
-        return y_pred
+        analytics = {
+            "tfidf_vectorizer": tfidfconverter,
+            "classifier_model": classifier,
+            "X_shape": X.shape,
+            "prediction": y_pred
+        }
+
+        return analytics

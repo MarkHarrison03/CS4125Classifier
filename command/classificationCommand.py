@@ -1,5 +1,6 @@
 from command.command import Command
-from utils.utils import classify_email, get_model_choice
+from utils.utils import get_model_choice
+from utils.Classify import classify_email
 from user_settings_singleton.UserSettingsSingleton import UserSettingsSingleton
 
 
