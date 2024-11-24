@@ -45,40 +45,33 @@ def save_classification_to_csv(subject, email, results, selected_models, all_mod
     if all_models is None:
         all_models = ["HGBC", "SVM", "NB", "KNN", "CB"]
 
-    # Prepare headers dynamically for all models and types
     fieldnames = ["subject", "email"] + [f"{model}_Type{i}" for model in all_models for i in range(1, 5)]
 
-    # Prepare a single dictionary for the row
     row = {"subject": subject, "email": email}
 
     for model_name in selected_models:
-        classifications = results.get(model_name, [])  # Results for this model (list of lists)
+        classifications = results.get(model_name, [])
         if isinstance(classifications, np.ndarray):
-            classifications = classifications.tolist()  # Convert numpy array to a list
+            classifications = classifications.tolist()
 
-        # Check and flatten extra nesting for "CB" or other models
         while len(classifications) > 0 and isinstance(classifications[0], list):
-            classifications = classifications[0]  # Unwrap one level of nesting
+            classifications = classifications[0]
 
-        for i in range(1, 5):  # Iterate over 4 types
-            if i <= len(classifications):  # Ensure the type index exists in the results
-                classification = classifications[i - 1]  # Get classification for this type
-                # Convert to string for CSV storage
+        for i in range(1, 5):
+            if i <= len(classifications):
+                classification = classifications[i - 1]
                 if isinstance(classification, (list, np.ndarray)):
                     row[f"{model_name}_Type{i}"] = ",".join(map(str, classification)) if classification else ""
                 else:
                     row[f"{model_name}_Type{i}"] = str(classification) if classification else ""
             else:
-                # Fill empty types with an empty string
                 row[f"{model_name}_Type{i}"] = ""
 
-    # Write the row to the CSV
     try:
         file_exists = os.path.exists(filename) and os.path.getsize(filename) > 0
         with open(filename, mode="a", newline="", encoding="utf-8") as file:
-            # Configure the CSV writer to avoid quoting
             writer = csv.DictWriter(file, fieldnames=fieldnames, quoting=csv.QUOTE_NONE, escapechar='\\')
-            if not file_exists:  # If the file is new or empty, write the header
+            if not file_exists:
                 writer.writeheader()
             writer.writerow(row)
         print(f"Classification result saved to {filename}.")
@@ -125,7 +118,7 @@ def use_preset_model_choice():
             strategy = HighPerformanceStrategy(settings_manager=UserSettingsSingleton.get_instance())
         else:
             print("Invalid choice! Please choose a valid strategy.")
-            return  # Exit the function if invalid input is entered
+            return
         
         strategy.configure_context()
         print("Preset strategy applied successfully.")
