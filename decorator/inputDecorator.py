@@ -80,7 +80,7 @@ class inputDecorator:
             print(user_settings)  
             self.translate = user_settings.translate_text
             self.removeNoise = user_settings.remove_noise
-            print(self.translate, self.removeNoise)
+   
 
             
             if self.translate == True:

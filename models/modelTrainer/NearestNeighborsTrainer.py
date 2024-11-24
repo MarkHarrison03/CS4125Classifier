@@ -4,14 +4,14 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.multioutput import MultiOutputClassifier
-from sklearn.metrics import classification_report
+from sklearn.metrics import classification_report, accuracy_score
 import joblib
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
 from data_preprocessor.data_preprocessor import DataPreprocessor
 
 print("Loading dataset...")
-df = pd.read_csv("../../AppGallery.csv")
+df = pd.read_csv("AppGallery.csv")
 print(f"Dataset loaded with {df.shape[0]} rows and {df.shape[1]} columns.\n")
 
 preprocessor = DataPreprocessor(max_features=2000)

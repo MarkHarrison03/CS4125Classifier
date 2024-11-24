@@ -11,7 +11,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../'
 from data_preprocessor.data_preprocessor import DataPreprocessor
 
 print("Loading dataset...")
-df = pd.read_csv("../../AppGallery.csv")
+df = pd.read_csv("AppGallery.csv")
 print(f"Dataset loaded with {df.shape[0]} rows and {df.shape[1]} columns.\n")
 
 preprocessor = DataPreprocessor(max_features=2000)
@@ -37,7 +37,7 @@ print("Evaluating the Naive Bayes model...")
 y_pred = nb_classifier.predict(X_test)
 
 print("\nClassification Reports for each label:")
-for i, label in enumerate(["Type 1", "Type 2", "Type 3", "Type 4"):
+for i, label in enumerate(["Type 1", "Type 2", "Type 3", "Type 4"]):
     print(f"\nClassification Report for {label}:")
     print(classification_report(y_test.iloc[:, i], y_pred[:, i]))
 

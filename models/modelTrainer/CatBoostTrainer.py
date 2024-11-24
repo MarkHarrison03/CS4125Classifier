@@ -12,7 +12,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../'
 from data_preprocessor.data_preprocessor import DataPreprocessor
 
 print("Loading dataset...")
-df = pd.read_csv("./AppGallery.csv")
+df = pd.read_csv("AppGallery.csv")
 print(f"Dataset loaded with {df.shape[0]} rows and {df.shape[1]} columns.\n")
 
 preprocessor = DataPreprocessor(max_features=102)
@@ -22,7 +22,7 @@ X, y = preprocessor.preprocess_dataframe(
     df,
     content_col="Interaction content",
     summary_col="Ticket Summary",
-    label_cols=["Type 2", "Type 3", "Type 4"]
+    label_cols=["Type 1", "Type 2", "Type 3", "Type 4"]
 )
 print(f"Preprocessing completed. Shape of X: {X.shape}, Shape of y: {y.shape}\n")
 

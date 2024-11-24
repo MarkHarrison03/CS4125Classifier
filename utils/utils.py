@@ -2,6 +2,7 @@ from userSettings import userSettings
 from ModelFactory import ModelFactory
 from decorator.decorator import log_function_call
 from decorator.inputDecorator import inputDecorator
+from strategy.classificationStrategies import QuickStrategy, VerboseStrategy, NoiseRemovalStrategy, TranslateStrategy, HighPerformanceStrategy
 import os
 
 @inputDecorator(target_language="en")
@@ -40,6 +41,46 @@ def get_model_choice():
     Allows the user to select one or more models and preprocessing options.
     Updates the global configuration accordingly.
     """
+    
+    print("Would you like to use a preset strategy for classification, or customize your own?")
+    print("1. Use a preset strategy")
+    print("2. Customize your own strategy")
+    choice = input("Enter your choice (1/2): ").strip()
+    if choice == "1":
+        use_preset_model_choice()
+    elif choice == "2":
+        customize_model_choice()
+        
+def use_preset_model_choice():
+        print("Please choose your preset strategy: ")
+        print("1. Quick Strategy: Single, lightweight model with minimal pre and post processing")
+        print("2. Verbose Strategy: All models are ran, with all pre and post processing options enabled")
+        print("3. Noise Reduction Strategy: Three models are ran, with only noise reduction enabled")
+        print("4. Translation Strategy: Tgree models are ran, with only translation enabled")
+        print("5. High Performance Strategy: Two lightweight models are ran, with only noise reduction enabled")
+        
+        choice = input("Enter your choice (1/2/3): ").strip()
+        if choice == "1":
+            strategy = QuickStrategy()
+        elif choice == "2":
+            strategy = VerboseStrategy()
+        elif choice == "3":
+            strategy = NoiseRemovalStrategy()
+        elif choice == "4":
+            strategy = TranslateStrategy()
+        elif choice == "5":
+            strategy = HighPerformanceStrategy()
+        else:
+            print("Invalid choice! Please choose a valid strategy.")
+            return  # Exit the function if invalid input is entered
+        
+        strategy.configure_context()
+        print("Preset strategy applied successfully.")
+        print(userSettings())
+
+def customize_model_choice():
+    configuration = userSettings()
+
     print("Choose a model for classification. Separate your choices with commas if selecting multiple:")
     print("1. HGBC Model")
     print("2. SVM Model")
@@ -64,7 +105,7 @@ def get_model_choice():
             elif choice.strip() == "5":
                 selected_models.append("CB")
             elif choice.strip() == "6":
-                selected_models = ["HGBC", "SVM", "NB", "KNN"]
+                selected_models = ["HGBC", "SVM", "NB", "KNN", "CB"]
                 break
 
     if not selected_models:

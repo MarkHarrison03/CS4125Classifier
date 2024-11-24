@@ -6,11 +6,13 @@ from sklearn.ensemble import HistGradientBoostingClassifier
 from sklearn.multioutput import MultiOutputClassifier
 from sklearn.metrics import accuracy_score, classification_report
 import joblib
+print(f"Current Working Directory: {os.getcwd()}")
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
 from data_preprocessor.data_preprocessor import DataPreprocessor
-
+print(f"Current Working Directory: {os.getcwd()}")
 print("Loading dataset...")
-df = pd.read_csv("../../AppGallery.csv")
+df = pd.read_csv("AppGallery.csv")
 print(f"Dataset loaded with {df.shape[0]} rows and {df.shape[1]} columns.\n")
 
 preprocessor = DataPreprocessor(max_features=102)
