@@ -20,7 +20,7 @@ class ModelFactory:
         "hgbc": ("./exported_models/HGBC/HGBCModel.pkl", "models.modelTrainer.HGBCModelTrainer"),
         "svm": ("./exported_models/SVM/SVMModel.pkl", "models.modelTrainer.SVMModelTrainer"),
         "knn": ("./exported_models/KNN/KNNModel.pkl", "models.modelTrainer.NearestNeighborsTrainer"),
-        "nb": ("./exported_models/NB/NBModel.pkl", "models.modelTrainer.NaiveBayesTrainer"),
+        "nb": ("./exported_models/NB/NaiveBayesModel.pkl", "models.modelTrainer.NaiveBayesTrainer"),
         "cb": ("./exported_models/CB/CatBoostModel.pkl", "models.modelTrainer.CatBoostTrainer")
     }
 
@@ -38,6 +38,7 @@ class ModelFactory:
         if not os.path.exists(model_path):
             print(f"Model file not found for '{model_name}'. Training the model...")
             trainer = importlib.import_module(trainer_module)
+            print(trainer)
             if hasattr(trainer, "main"):
                 trainer.main()
             else:

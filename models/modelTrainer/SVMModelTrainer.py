@@ -1,4 +1,5 @@
-import os, sys
+import os
+import sys
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
@@ -6,27 +7,22 @@ from sklearn.multioutput import MultiOutputClassifier
 from sklearn.svm import SVC
 from sklearn.metrics import classification_report, accuracy_score
 import joblib
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
 from data_preprocessor.data_preprocessor import DataPreprocessor
 
-print("Loading datasets...")
-df = pd.read_csv("../../AppGallery.csv")
-purchasing_df = pd.read_csv("../../purchasing.csv")
-print(f"AppGallery dataset: {df.shape[0]} rows, {df.shape[1]} columns.")
-print(f"Purchasing dataset: {purchasing_df.shape[0]} rows, {purchasing_df.shape[1]} columns.")
-
-print("Concatenating datasets...")
-# Ensure the required columns are aligned in both datasets
 required_columns = ["Interaction content", "Ticket Summary", "Type 1", "Type 2", "Type 3", "Type 4"]
-for col in required_columns:
-    if col not in purchasing_df.columns:
-        purchasing_df[col] = None  # Fill missing columns with None
 
-df = pd.concat([df[required_columns], purchasing_df[required_columns]], ignore_index=True)
-print(f"Combined dataset: {df.shape[0]} rows, {df.shape[1]} columns.")
 preprocessor = DataPreprocessor(max_features=2000)
 
-print("Preprocessing dataset...")
+print("Preprocessing datasets...")
+df = preprocessor.preprocess_datasets(
+    required_columns=["Interaction content", "Ticket Summary", "Type 1", "Type 2", "Type 3", "Type 4"],
+    translate=True
+)
+
+
+print("Preprocessing text and extracting features...")
 X, y = preprocessor.preprocess_dataframe(
     df,
     content_col="Interaction content",
@@ -56,7 +52,7 @@ print("Per-label accuracies:", accuracies)
 average_accuracy = sum(accuracies) / len(accuracies)
 print(f"Average accuracy: {average_accuracy:.2f}")
 
-for i, label in enumerate(["Type1", "Type 2", "Type 3", "Type 4"]):
+for i, label in enumerate(["Type 1", "Type 2", "Type 3", "Type 4"]):
     print(f"\nClassification Report for {label}:")
     print(classification_report(y_test.iloc[:, i], y_pred[:, i]))
 
