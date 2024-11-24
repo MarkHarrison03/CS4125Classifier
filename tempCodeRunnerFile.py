@@ -1,3 +1,6 @@
+from decorator.decorator import log_function_call
+from decorator.inputDecorator import inputDecorator
+
 
 @inputDecorator(target_language="en")
 @log_function_call

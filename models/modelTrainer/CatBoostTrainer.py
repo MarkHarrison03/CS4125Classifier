@@ -3,33 +3,26 @@ import sys
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import classification_report, confusion_matrix
+from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
 from sklearn.multioutput import MultiOutputClassifier
 import joblib
 from catboost import CatBoostClassifier
-from sklearn.metrics import accuracy_score
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
 from data_preprocessor.data_preprocessor import DataPreprocessor
 
-print("Loading datasets...")
-df = pd.read_csv("../../AppGallery.csv")
-purchasing_df = pd.read_csv("../../purchasing.csv")
-print(f"AppGallery dataset: {df.shape[0]} rows, {df.shape[1]} columns.")
-print(f"Purchasing dataset: {purchasing_df.shape[0]} rows, {purchasing_df.shape[1]} columns.")
-
-print("Concatenating datasets...")
-# Ensure the required columns are aligned in both datasets
 required_columns = ["Interaction content", "Ticket Summary", "Type 1", "Type 2", "Type 3", "Type 4"]
-for col in required_columns:
-    if col not in purchasing_df.columns:
-        purchasing_df[col] = None  # Fill missing columns with None
-
-df = pd.concat([df[required_columns], purchasing_df[required_columns]], ignore_index=True)
-print(f"Combined dataset: {df.shape[0]} rows, {df.shape[1]} columns.")
 
 preprocessor = DataPreprocessor(max_features=102)
 
-print("Preprocessing dataset...")
+print("Preprocessing datasets...")
+df = preprocessor.preprocess_datasets(
+    required_columns=["Interaction content", "Ticket Summary", "Type 1", "Type 2", "Type 3", "Type 4"],
+    translate=True
+)
+
+
+print("Preprocessing text and extracting features...")
 X, y = preprocessor.preprocess_dataframe(
     df,
     content_col="Interaction content",
@@ -42,12 +35,10 @@ print("Splitting data into train and test sets...")
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=0)
 
 print("Training the CatBoost model with MultiOutputClassifier...")
-# Wrap cb with multioutput classifier
 cb_classifier = CatBoostClassifier(
     iterations=100, depth=6, learning_rate=0.1,
     loss_function='MultiClass', verbose=False
 )
-
 multi_output_classifier = MultiOutputClassifier(cb_classifier)
 multi_output_classifier.fit(X_train, y_train)
 print("Model training completed.\n")
@@ -55,9 +46,6 @@ print("Model training completed.\n")
 print("Evaluating the CatBoost model...")
 y_pred = multi_output_classifier.predict(X_test)
 y_pred = y_pred.reshape(-1, y_test.shape[1])
-
-print(f"Shape of y_test: {y_test.shape}")
-print(f"Shape of y_pred: {y_pred.shape}")
 
 accuracies = []
 for i in range(y_test.shape[1]):
@@ -69,10 +57,8 @@ for i in range(y_test.shape[1]):
     print(f"\nConfusion Matrix for Output {i + 1}:")
     print(confusion_matrix(y_test.iloc[:, i], y_pred[:, i]))
 
-# Print overall accuracy
-print(f"Overall accuracies for each output: {accuracies}")
+print(f"\nOverall accuracies for each output: {accuracies}")
 
-# Save the model and vectorizer
 print("\nSaving the CatBoost model...")
 os.makedirs("./exported_models/CB", exist_ok=True)
 preprocessor.save_vectorizer("./exported_models/CB/cb_tfidf_vectorizer.pkl")

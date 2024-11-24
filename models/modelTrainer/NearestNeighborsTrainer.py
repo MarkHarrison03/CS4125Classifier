@@ -10,25 +10,18 @@ import joblib
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
 from data_preprocessor.data_preprocessor import DataPreprocessor
 
-print("Loading datasets...")
-df = pd.read_csv("../../AppGallery.csv")
-purchasing_df = pd.read_csv("../../purchasing.csv")
-print(f"AppGallery dataset: {df.shape[0]} rows, {df.shape[1]} columns.")
-print(f"Purchasing dataset: {purchasing_df.shape[0]} rows, {purchasing_df.shape[1]} columns.")
-
-print("Concatenating datasets...")
-# Ensure the required columns are aligned in both datasets
 required_columns = ["Interaction content", "Ticket Summary", "Type 1", "Type 2", "Type 3", "Type 4"]
-for col in required_columns:
-    if col not in purchasing_df.columns:
-        purchasing_df[col] = None  # Fill missing columns with None
-
-df = pd.concat([df[required_columns], purchasing_df[required_columns]], ignore_index=True)
-print(f"Combined dataset: {df.shape[0]} rows, {df.shape[1]} columns.")
 
 preprocessor = DataPreprocessor(max_features=2000)
 
-print("Preprocessing dataset...")
+print("Preprocessing datasets...")
+df = preprocessor.preprocess_datasets(
+    required_columns=["Interaction content", "Ticket Summary", "Type 1", "Type 2", "Type 3", "Type 4"],
+    translate=True
+)
+
+
+print("Preprocessing text and extracting features...")
 X, y = preprocessor.preprocess_dataframe(
     df,
     content_col="Interaction content",
@@ -60,6 +53,7 @@ for i in range(y_test.shape[1]):
 print("Per-label accuracies:", accuracies)
 average_accuracy = sum(accuracies) / len(accuracies)
 print(f"Average accuracy: {average_accuracy:.2f}")
+
 print("\nSaving the k-Nearest Neighbors model...")
 os.makedirs("./exported_models/KNN", exist_ok=True)
 preprocessor.save_vectorizer("./exported_models/KNN/nn_tfidf_vectorizer.pkl")
