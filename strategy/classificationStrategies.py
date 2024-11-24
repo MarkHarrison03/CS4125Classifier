@@ -1,5 +1,6 @@
 from strategy.strategy import Strategy
 from user_settings_singleton.Settings_manager import SettingsManager
+
 class QuickStrategy(Strategy):
     def __init__(self, settings_manager: SettingsManager):
         self.settings_manager = settings_manager
