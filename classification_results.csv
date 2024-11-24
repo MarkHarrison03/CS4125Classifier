@@ -1,0 +1,2 @@
+subject,email,HGBC_Type1,HGBC_Type2,HGBC_Type3,HGBC_Type4,SVM_Type1,SVM_Type2,SVM_Type3,SVM_Type4,NB_Type1,NB_Type2,NB_Type3,NB_Type4,KNN_Type1,KNN_Type2,KNN_Type3,KNN_Type4,CB_Type1,CB_Type2,CB_Type3,CB_Type4
+dhfsdsdf,dgfdhdrh,"Purchasing,Suggestion,Payment,Subscription cancellation",,,,"Purchasing,Suggestion,Payment,Subscription cancellation",,,,"Purchasing,Suggestion,Payment,Subscription cancellation",,,,"Purchasing,Suggestion,Payment,Subscription cancellation",,,,"['Purchasing', 'Suggestion', 'Payment', 'Subscription cancellation']",,,
