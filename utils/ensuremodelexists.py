@@ -1,11 +1,11 @@
-from userSettings import userSettings
+from user_settings_singleton.UserSettingsSingleton import UserSettingsSingleton
 import subprocess
 import os
 def ensure_models_exist():
     """
     Ensures that the model files exist. If not, trains the model using the corresponding trainer.
     """
-    configuration = userSettings()
+    configuration = UserSettingsSingleton.get_instance()
 
     model_paths = {
         "HGBC": "./exported_models/HGBC/HGBCModel.pkl",

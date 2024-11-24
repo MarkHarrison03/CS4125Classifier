@@ -1,15 +1,16 @@
-from userSettings import userSettings
+from user_settings_singleton.UserSettingsSingleton import UserSettingsSingleton
 from ModelFactory import ModelFactory
 from decorator.decorator import log_function_call
 from decorator.inputDecorator import inputDecorator
 from strategy.classificationStrategies import QuickStrategy, VerboseStrategy, NoiseRemovalStrategy, TranslateStrategy, HighPerformanceStrategy
 import os
 
-@inputDecorator(target_language="en")
+@inputDecorator([lambda: UserSettingsSingleton.get_instance().translate_text, lambda: UserSettingsSingleton.get_instance().remove_noise], 
+    target_language="en")
 @log_function_call
 def classify_email(subject, email):
-    configuration = userSettings()
-    
+    configuration = UserSettingsSingleton.get_instance()
+    print("config" , UserSettingsSingleton.get_instance().remove_noise)
     """
     Performs email classification using the selected model(s) in the configuration.
     """
@@ -35,7 +36,7 @@ def classify_email(subject, email):
 
 @log_function_call
 def get_model_choice():
-    configuration = userSettings()
+    configuration = UserSettingsSingleton.get_instance()
 
     """
     Allows the user to select one or more models and preprocessing options.
@@ -76,10 +77,10 @@ def use_preset_model_choice():
         
         strategy.configure_context()
         print("Preset strategy applied successfully.")
-        print(userSettings())
+        print(UserSettingsSingleton.get_instance())
 
 def customize_model_choice():
-    configuration = userSettings()
+    configuration = UserSettingsSingleton.get_instance()
 
     print("Choose a model for classification. Separate your choices with commas if selecting multiple:")
     print("1. HGBC Model")
@@ -154,7 +155,7 @@ def ensure_model_exists(model_name):
     """
     Ensures that the model files exist. If not, trains the model using the corresponding trainer.
     """
-    configuration = userSettings()
+    configuration = UserSettingsSingleton.get_instance()
 
     model_paths = {
         "HGBC": "./exported_models/HGBC/HGBCModel.pkl",

@@ -2,13 +2,10 @@ import os
 import sys
 import subprocess
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
-print("ho")
 from utils.ensuremodelexists import ensure_models_exist
-print("ho")
-
 ensure_models_exist()
 
-from userSettings import userSettings
+from user_settings_singleton.UserSettingsSingleton import UserSettingsSingleton
 from command.classificationCommand import ClassificationCommand, ConfigureCommand, AnalyticsCommand, ExitCommand
 from invoker.MenuInvoker import MenuInvoker
 def main_menu():
@@ -22,7 +19,7 @@ def main_menu():
     print("4. Exit")
     return input("Choose an option (1/2/3/4): ").strip()
 print("hi")
-configuration = userSettings()
+configuration = UserSettingsSingleton.get_instance()
 classify_command = ClassificationCommand(configuration)
 configure_command = ConfigureCommand(configuration)
 analytics_command = AnalyticsCommand()
