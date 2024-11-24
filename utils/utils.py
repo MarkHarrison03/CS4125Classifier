@@ -9,27 +9,24 @@ from decorator.inputDecorator import inputDecorator
 from strategy.classificationStrategies import QuickStrategy, VerboseStrategy, NoiseRemovalStrategy, TranslateStrategy, HighPerformanceStrategy
 import os
 
-@inputDecorator([lambda: UserSettingsSingleton.get_instance().translate_text, lambda: UserSettingsSingleton.get_instance().remove_noise], 
-    target_language="en")
+@inputDecorator([lambda: UserSettingsSingleton.get_instance().translate_text, 
+                 lambda: UserSettingsSingleton.get_instance().remove_noise], 
+                target_language="en")
 @log_function_call
 def classify_email(subject, email):
     configuration = UserSettingsSingleton.get_instance()
-    print("config" , UserSettingsSingleton.get_instance().remove_noise)
-    """
-    Performs email classification using the selected model(s) in the configuration.
-    """
-    #subject = input("Please enter the subject line: ").strip()
-    #email = input("Please enter the email body text: ").strip()
 
     models = configuration.ml_models
     if "Run All Models" in models:
         models = ["HGBC", "SVM", "NB", "KNN", "CB"]
-    print(subject, email)
+
+    print(f"Final Inputs to Models: Subject: {subject}, Email: {email}")
     results = {}
     for model_name in models:
         try:
             classifier = ModelFactory.get_model(model_name)
             classification = classifier.categorize(subject, email)
+            print("LOG AFTER", subject, email)
             results[model_name] = classification
         except ValueError as e:
             results[model_name] = f"Error: {e}"
@@ -38,15 +35,7 @@ def classify_email(subject, email):
     for model_name, result in results.items():
         print(f"- {model_name} Model: {result}")
     save_classification_to_csv(subject, email, results, selected_models=models)
-
-
-import csv
-import os
-
-
-import os
-import csv
-import numpy as np
+    return results, subject, email
 
 def save_classification_to_csv(subject, email, results, selected_models, all_models=None, filename="classification_results.csv"):
     """

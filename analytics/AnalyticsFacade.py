@@ -1,24 +1,26 @@
 import csv
-import os
 from collections import Counter
-import numpy as np
 import matplotlib.pyplot as plt
-
+import matplotlib
+matplotlib.use("tkagg")
 
 class AnalyticsFacade:
     def __init__(self, results_file="classification_results.csv"):
         self.results_file = results_file
+        self.model_prefix_map = {
+            "HGBC": "HGBC",
+            "SVM": "SVM",
+            "CatBoost_Model": "CB",
+            "NaiveBayes_Model": "NB",
+            "KNN_Model": "KNN"
+        }
 
     def load_results_from_csv(self):
-        """
-        Loads classification results from the CSV file into a list of dictionaries.
-        """
         try:
             with open(self.results_file, mode="r", encoding="utf-8") as file:
                 reader = csv.DictReader(file)
                 results = [row for row in reader]
                 print(f"Loaded {len(results)} results from {self.results_file}.")
-                print(f"Results loaded: {results}")  # Debugging
                 return results
         except FileNotFoundError:
             print(f"{self.results_file} not found. No results available.")
@@ -28,139 +30,59 @@ class AnalyticsFacade:
             return []
 
     def filter_results_by_models(self, results, model_names):
-        """
-        Filters the results to only include the selected models' columns.
-        """
         filtered_results = []
-
         for result in results:
             filtered_row = {"subject": result.get("subject", ""), "email": result.get("email", "")}
-
+            valid_row = False
             for model_name in model_names:
-                for i in range(1, 5):  # Types 1 to 4
-                    column_key = f"{model_name}_Type{i}"
-                    if column_key in result:
-                        filtered_row[column_key] = result[column_key]
-
-            filtered_results.append(filtered_row)
-
+                prefix = self.model_prefix_map.get(model_name, model_name)
+                for i in range(1, 5):
+                    column_key = f"{prefix}_Type{i}"
+                    value = result.get(column_key, "").strip() if result.get(column_key) else ""
+                    if value and value.lower() not in [model_name.lower(), prefix.lower(), ""]:
+                        filtered_row[column_key] = value
+                        valid_row = True
+                    else:
+                        filtered_row[column_key] = ""
+            if valid_row:
+                filtered_results.append(filtered_row)
+        print(f"Filtered Results: {filtered_results}")
         return filtered_results
 
-    def display_menu(self):
-        """Displays the analytics menu and returns the user's choice."""
-        print("\n=== Email Classification Analytics ===")
-        print("1. Compute Statistics for Selected Models")
-        print("2. Visualize Results for Selected Models")
-        print("3. Display Results for Selected Models")
-        print("4. Exit")
-        return input("Enter your choice (1-4): ").strip()
-
-    def get_model_choices(self):
-        """Lets the user choose which model(s) to analyze."""
-        available_models = {
-            1: "HGBC",
-            2: "SVM",
-            3: "CatBoost_Model",
-            4: "NaiveBayes_Model",
-            5: "KNN_Model"
-        }
-
-        print("\nAvailable Models:")
-        for idx, model_name in available_models.items():
-            print(f"{idx}. {model_name}")
-
-        choices = input("Select models (e.g., 1,2): ").strip()
-        selected_models = []
-
-        try:
-            for choice in choices.split(","):
-                choice = int(choice.strip())
-                if choice in available_models:
-                    selected_models.append(available_models[choice])
-                else:
-                    print(f"Invalid selection: {choice}")
-        except ValueError:
-            print("Invalid input. Please enter numbers separated by commas.")
-
-        if not selected_models:
-            print("No valid models selected. Please try again.")
-            return self.get_model_choices()
-
-        return selected_models
-
     def compute_grouped_counts(self, model_names, results):
-        """
-        Counts the classification results grouped by type (Type 1, Type 2, Type 3, Type 4) for selected models.
-        """
-        # Filter results for selected models
         filtered_results = self.filter_results_by_models(results, model_names)
-
-        grouped_counts = {
-            "Type 1": Counter(),
-            "Type 2": Counter(),
-            "Type 3": Counter(),
-            "Type 4": Counter(),
-        }
-
+        grouped_counts = {f"Type {i}": Counter() for i in range(1, 5)}
         for result in filtered_results:
             for model_name in model_names:
+                prefix = self.model_prefix_map.get(model_name, model_name)
                 for type_index, type_label in enumerate(["Type 1", "Type 2", "Type 3", "Type 4"], start=1):
-                    column_key = f"{model_name}_Type{type_index}"  # e.g., HGBC_Type1, HGBC_Type2, etc.
-                    if column_key in result and result[column_key].strip():
-                        categories = result[column_key].split(",")
+                    column_key = f"{prefix}_Type{type_index}"
+                    value = result.get(column_key, "").strip()
+                    if value and value.lower() not in [model_name.lower(), prefix.lower(), ""]:
+                        categories = value.split(",")
                         for category in categories:
                             grouped_counts[type_label][category.strip()] += 1
-
+        print(f"Grouped Counts: {grouped_counts}")
         return grouped_counts
 
-    def compute_model_statistics(self, model_names):
-        """
-        Calculates the percentage distribution of classifications for all types (Type 1, Type 2, Type 3, Type 4).
-        """
-        results = self.load_results_from_csv()
-        if not results:
-            print("No results available to compute statistics.")
-            return
-
-        grouped_counts = self.compute_grouped_counts(model_names, results)
-        total_by_type = {type_label: sum(counts.values()) for type_label, counts in grouped_counts.items()}
-
-        print("\n=== Classification Statistics ===")
-        for type_label, counts in grouped_counts.items():
-            total = total_by_type[type_label]
-            if total > 0:
-                print(f"\n{type_label}:")
-                for classification, count in counts.items():
-                    percentage = (count / total) * 100
-                    print(f"  {classification}: {percentage:.2f}%")
-            else:
-                print(f"\n{type_label}: No results available.")
-
     def generate_visualization(self, model_names):
-        """
-        Creates a grouped bar chart for the classification results.
-        """
         results = self.load_results_from_csv()
         if not results:
             print("No results available to visualize.")
             return
-
-        # Compute grouped counts for selected models
-        filtered_results = self.filter_results_by_models(results, model_names)
-        grouped_counts = self.compute_grouped_counts(model_names, filtered_results)
-        if not grouped_counts:
+        grouped_counts = self.compute_grouped_counts(model_names, results)
+        if not any(count for count in grouped_counts.values()):
             print("No valid classifications available to visualize.")
             return
-
-        # Flatten the Counter into categories and counts
-        categories = []
-        counts = []
+        categories, counts = [], []
         for type_label, counter in grouped_counts.items():
             for category, count in counter.items():
-                categories.append(f"{type_label} - {category}")
-                counts.append(count)
-
-        # Generate the bar chart
+                if count > 0:
+                    categories.append(f"{type_label} - {category}")
+                    counts.append(count)
+        if not categories or not counts:
+            print("No valid data to visualize.")
+            return
         plt.figure(figsize=(12, 8))
         plt.bar(categories, counts, color="skyblue")
         plt.xlabel("Classifications")
@@ -168,21 +90,8 @@ class AnalyticsFacade:
         plt.title("Classification Results Visualization")
         plt.xticks(rotation=45, ha="right")
         plt.tight_layout()
-        plt.show()
-
-    def display_results(self, model_names):
-        """
-        Displays all classification results for the selected models.
-        """
-        results = self.load_results_from_csv()
-        if not results:
-            print("No results available to display.")
-            return
-
-        # Filter results for selected models
-        filtered_results = self.filter_results_by_models(results, model_names)
-
-        print("\n=== Classification Results ===")
-        for result in filtered_results:
-            print(result)
-
+        try:
+            plt.show()
+        except Exception as e:
+            plt.savefig("visualization.png")
+            print(f"Visualization saved as 'visualization.png' due to error: {e}")
