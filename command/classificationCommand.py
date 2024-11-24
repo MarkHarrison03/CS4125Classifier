@@ -1,7 +1,7 @@
 from command.command import Command
 from utils.utils import classify_email, get_model_choice
 from analytics.AnalyticsFacade import AnalyticsFacade
-from tkinter import messagebox, Toplevel, Label, ttk, Checkbutton, IntVar, Button
+from tkinter import messagebox, Toplevel, Label, ttk, Checkbutton, IntVar, Button, Toplevel, Listbox, messagebox, IntVar, Checkbutton, END
 from tkinter.simpledialog import askstring
 from user_settings_singleton.UserSettingsSingleton import UserSettingsSingleton
 from tkinter.messagebox import showinfo
@@ -20,10 +20,6 @@ class ClassificationCommand(Command):
             messagebox.showwarning("Configuration Missing", "No models selected. Redirecting to Configuration...")
             configure_command = ConfigureCommand(self.configuration, self.root)
             configure_command.execute()
-
-            if not self.configuration.ml_models:
-                messagebox.showerror("Error", "No models selected. Returning to main menu.")
-                return
 
         try:
             results, finalSubject, finalEmail = classify_email(subject, email)
@@ -117,9 +113,6 @@ class ExitCommand(Command):
         messagebox.showinfo("Exit", "Exiting the application.")
         self.root.quit()
 
-from tkinter import Toplevel, Label, Button, Listbox, messagebox, IntVar, Checkbutton, END
-import matplotlib.pyplot as plt
-
 class AnalyticsCommand(Command):
     def __init__(self, root):
         self.analytics = AnalyticsFacade()
@@ -137,30 +130,28 @@ class AnalyticsCommand(Command):
             "Compute Statistics for Selected Models",
             "Visualize Results for Selected Models",
             "Display Results for Selected Models",
-            "Exit",
         ]
-        options_listbox = Listbox(analytics_window, font=("Helvetica", 12), height=len(options))
+        options_listbox = Listbox(analytics_window, font=("Helvetica", 12), selectmode="multiple", height=len(options))
         for option in options:
             options_listbox.insert(END, option)
         options_listbox.pack(pady=10, fill="x")
 
         def handle_selection():
-            selected_index = options_listbox.curselection()
-            if not selected_index:
-                messagebox.showerror("Error", "Please select an option from the menu.")
+            selected_indices = options_listbox.curselection()
+            if not selected_indices:
+                messagebox.showerror("Error", "Please select one or more options from the menu.")
                 return
 
-            choice = selected_index[0] + 1
-            if choice == 1:
-                self.compute_statistics()
-            elif choice == 2:
-                self.visualize_results()
-            elif choice == 3:
-                self.display_results()
-            elif choice == 4:
-                analytics_window.destroy()
-            else:
-                messagebox.showerror("Error", "Invalid choice.")
+            for selected_index in selected_indices:
+                choice = selected_index + 1
+                if choice == 1:
+                    self.compute_statistics()
+                elif choice == 2:
+                    self.visualize_results()
+                elif choice == 3:
+                    self.display_results()
+
+            analytics_window.destroy()
 
         Button(analytics_window, text="Execute", command=handle_selection).pack(pady=10)
 
@@ -169,12 +160,14 @@ class AnalyticsCommand(Command):
         model_names = self.select_models()
         if not model_names:
             return
+
         try:
-            results = self.analytics.compute_model_statistics(model_names)
-            if results:
-                self.display_statistics_in_window(results)
-            else:
-                messagebox.showinfo("No Results", "No results available to compute statistics.")
+            for model in model_names:
+                results = self.analytics.compute_model_statistics([model])
+                if results:
+                    self.display_statistics_in_window(results, model)
+                else:
+                    messagebox.showinfo("No Results", f"No results available to compute statistics for {model}.")
         except Exception as e:
             messagebox.showerror("Error", f"Failed to compute statistics: {e}")
 
@@ -183,8 +176,10 @@ class AnalyticsCommand(Command):
         model_names = self.select_models()
         if not model_names:
             return
+
         try:
-            self.analytics.generate_visualization(model_names)
+            for model in model_names:
+                self.analytics.generate_visualization([model])
         except Exception as e:
             messagebox.showerror("Error", f"Failed to generate visualization: {e}")
 
@@ -199,7 +194,8 @@ class AnalyticsCommand(Command):
             messagebox.showinfo("No Results", "No results available to display.")
             return
 
-        self.display_results_in_window(results, model_names)
+        for model in model_names:
+            self.display_results_in_window(results, [model])
 
     def select_models(self):
         """Prompt the user to select models for analytics."""
@@ -230,13 +226,13 @@ class AnalyticsCommand(Command):
             messagebox.showinfo("No Models Selected", "No models were selected for analytics.")
         return selected_models
 
-    def display_statistics_in_window(self, statistics):
+    def display_statistics_in_window(self, statistics, model_name):
         """Display statistics in a new window."""
         stats_window = Toplevel(self.root)
-        stats_window.title("Statistics")
+        stats_window.title(f"Statistics - {model_name}")
         stats_window.geometry("600x400")
 
-        Label(stats_window, text="Classification Statistics", font=("Helvetica", 16), pady=10).pack()
+        Label(stats_window, text=f"Classification Statistics for {model_name}", font=("Helvetica", 16), pady=10).pack()
 
         listbox = Listbox(stats_window, font=("Helvetica", 12), width=80, height=20)
         for type_label, counts in statistics.items():
@@ -249,16 +245,17 @@ class AnalyticsCommand(Command):
 
     def display_results_in_window(self, results, model_names):
         """Display results in a new window."""
-        results_window = Toplevel(self.root)
-        results_window.title("Classification Results")
-        results_window.geometry("700x400")
+        for model_name in model_names:
+            results_window = Toplevel(self.root)
+            results_window.title(f"Classification Results - {model_name}")
+            results_window.geometry("700x400")
 
-        Label(results_window, text="Classification Results", font=("Helvetica", 16), pady=10).pack()
+            Label(results_window, text=f"Classification Results for {model_name}", font=("Helvetica", 16), pady=10).pack()
 
-        listbox = Listbox(results_window, font=("Helvetica", 12), width=100, height=20)
-        filtered_results = self.analytics.filter_results_by_models(results, model_names)
-        for result in filtered_results:
-            listbox.insert(END, str(result))
-        listbox.pack(pady=10)
+            listbox = Listbox(results_window, font=("Helvetica", 12), width=100, height=20)
+            filtered_results = self.analytics.filter_results_by_models(results, [model_name])
+            for result in filtered_results:
+                listbox.insert(END, str(result))
+            listbox.pack(pady=10)
 
-        Button(results_window, text="Close", command=results_window.destroy).pack(pady=10)
+            Button(results_window, text="Close", command=results_window.destroy).pack(pady=10)
