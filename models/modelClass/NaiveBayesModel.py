@@ -1,10 +1,9 @@
 import numpy as np
 import joblib
-from data_preprocessor.data_preprocessor import DataPreprocessor
+from models.modelClass.ModelInterface import IModel
 
-
-class NBModel:
-    def categorize(subject, email):
+class NBModel(IModel):
+    def categorize(self, subject, email):
         tfidfconverter = joblib.load('./exported_models/NB/nb_tfidf_vectorizer.pkl')
         classifier = joblib.load('./exported_models/NB/NaiveBayesModel.pkl')
 
@@ -21,5 +20,4 @@ class NBModel:
             )
 
         y_pred = classifier.predict(X)
-
         return y_pred
