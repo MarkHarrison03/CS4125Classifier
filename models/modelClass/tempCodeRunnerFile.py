@@ -5,7 +5,6 @@ import joblib
 class CatBoostModel:
     def categorize(subject, email):
         
-        print("HELLLOOOOO")
         tfidfconverter = joblib.load('./exported_models/CB/cb_tfidf_vectorizer.pkl')
         classifier = joblib.load('./exported_models/CB/CatBoostModel.pkl')
         print(f"Classifier attributes: {dir(classifier)}")
