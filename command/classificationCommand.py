@@ -16,9 +16,6 @@ class ClassificationCommand(Command):
     def execute(self, subject, email):
         user_settings = UserSettingsSingleton.get_instance()
 
-        if user_settings.verbose:
-            messagebox.showinfo("Verbose", f"Executing with configuration: {self.configuration}")
-
         if not self.configuration.ml_models:
             messagebox.showwarning("Configuration Missing", "No models selected. Redirecting to Configuration...")
             configure_command = ConfigureCommand(self.configuration, self.root)
@@ -27,9 +24,6 @@ class ClassificationCommand(Command):
             if not self.configuration.ml_models:
                 messagebox.showerror("Error", "No models selected. Returning to main menu.")
                 return
-
-        if user_settings.verbose:
-            messagebox.showinfo("Verbose", f"Classifying email using models: {self.configuration.ml_models}")
 
         try:
             results, finalSubject, finalEmail = classify_email(subject, email)
@@ -117,8 +111,6 @@ class ExitCommand(Command):
     def execute(self):
         user_settings = UserSettingsSingleton.get_instance()
 
-        if user_settings.verbose:
-            messagebox.showinfo("Verbose", "[VERBOSE] Executing ExitCommand.")
         if user_settings.explainable:
             messagebox.showinfo("Explainable", "[EXPLAINABLE] Exiting the application after completing all tasks.")
 
