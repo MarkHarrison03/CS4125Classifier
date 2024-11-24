@@ -62,15 +62,15 @@ def use_preset_model_choice():
         
         choice = input("Enter your choice (1/2/3): ").strip()
         if choice == "1":
-            strategy = QuickStrategy()
+            strategy = QuickStrategy(settings_manager=UserSettingsSingleton.get_instance())
         elif choice == "2":
-            strategy = VerboseStrategy()
+            strategy = VerboseStrategy(settings_manager=UserSettingsSingleton.get_instance())
         elif choice == "3":
-            strategy = NoiseRemovalStrategy()
+            strategy = NoiseRemovalStrategy(settings_manager=UserSettingsSingleton.get_instance())
         elif choice == "4":
-            strategy = TranslateStrategy()
+            strategy = TranslateStrategy(settings_manager=UserSettingsSingleton.get_instance())
         elif choice == "5":
-            strategy = HighPerformanceStrategy()
+            strategy = HighPerformanceStrategy(settings_manager=UserSettingsSingleton.get_instance())
         else:
             print("Invalid choice! Please choose a valid strategy.")
             return  # Exit the function if invalid input is entered
