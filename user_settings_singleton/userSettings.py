@@ -1,4 +1,6 @@
-class userSettings:
+from user_settings_singleton.Settings_manager import SettingsManager
+
+class userSettings(SettingsManager):
     def __init__(self):
         self.ml_models = []
         self.translate_text = False
