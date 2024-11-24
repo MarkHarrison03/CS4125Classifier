@@ -1,3 +1,4 @@
+import os
 import pandas as pd
 import re
 import numpy as np
@@ -5,8 +6,9 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 import joblib
 from translate import Translator
 
+
 class DataPreprocessor:
-    def __init__(self, max_features=2000, target_language="en", appgallery_path="./AppGallery.csv", purchasing_path="./purchasing.csv"):
+    def __init__(self, max_features=2000, target_language="en", data_folder="./data"):
         self.translator = Translator(to_lang=target_language)
         self.tfidf_vectorizer = TfidfVectorizer(max_features=max_features, min_df=4, max_df=0.90)
         self.noise_patterns = [
@@ -17,24 +19,32 @@ class DataPreprocessor:
             r"[^a-zA-Z\s]",
             r"\s+"
         ]
-        self.appgallery_path = appgallery_path
-        self.purchasing_path = purchasing_path
+        self.data_folder = data_folder
 
     def preprocess_datasets(self, required_columns, translate=True):
-        print("Loading datasets...")
-        appgallery_df = pd.read_csv(self.appgallery_path)
-        purchasing_df = pd.read_csv(self.purchasing_path)
-        print(f"AppGallery dataset: {appgallery_df.shape[0]} rows, {appgallery_df.shape[1]} columns.")
-        print(f"Purchasing dataset: {purchasing_df.shape[0]} rows, {purchasing_df.shape[1]} columns.")
+        print("Loading datasets from folder...")
+        all_dataframes = []
+        for file_name in os.listdir(self.data_folder):
+            if file_name.endswith(".csv"):
+                file_path = os.path.join(self.data_folder, file_name)
+                print(f"Processing file: {file_path}")
+                try:
+                    df = pd.read_csv(file_path)
+                    # Ensure all required columns are present
+                    for col in required_columns:
+                        if col not in df.columns:
+                            df[col] = None
+                    all_dataframes.append(df[required_columns])
+                except Exception as e:
+                    print(f"Failed to load {file_name}. Error: {e}")
 
-        print("Concatenating datasets...")
-        for col in required_columns:
-            if col not in purchasing_df.columns:
-                purchasing_df[col] = None
-
-        combined_df = pd.concat([appgallery_df[required_columns], purchasing_df[required_columns]], ignore_index=True)
-        print(f"Combined dataset: {combined_df.shape[0]} rows, {combined_df.shape[1]} columns.")
-        return combined_df
+        if all_dataframes:
+            combined_df = pd.concat(all_dataframes, ignore_index=True)
+            print(f"Combined dataset: {combined_df.shape[0]} rows, {combined_df.shape[1]} columns.")
+            return combined_df
+        else:
+            print("No valid CSV files found.")
+            return pd.DataFrame(columns=required_columns)
 
     def preprocess_text(self, text, translate=True):
         if not isinstance(text, str):
