@@ -1,0 +1,8 @@
+catboost
+deep_translator
+joblib
+matplotlib
+numpy
+pandas
+scikit-learn
+translate

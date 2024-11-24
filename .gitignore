@@ -8,3 +8,7 @@ venv/
 
 *.log
 *.tmp
+catboost_info/
+models/__pycache__/
+user_settings_singleton/__pycache__/
+utils/__pycache__/
