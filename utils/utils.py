@@ -99,8 +99,7 @@ def customize_model_choice():
 
     print("\nChoose postprocessing settings:")
     print("1. Verbose output")
-    print("2. Explainable AI")
-    choice_post = input("Enter your choice (e.g., 2): ").strip()
+    choice_post = input("Enter your choice (e.g. 1): ").strip()
 
     verbose = False
     explainable = False
@@ -109,8 +108,7 @@ def customize_model_choice():
         for choice in choices:
             if choice.strip() == "1":
                 verbose = True
-            elif choice.strip() == "2":
-                explainable = True
+
 
     for model in selected_models:
         ensure_model_exists(model)

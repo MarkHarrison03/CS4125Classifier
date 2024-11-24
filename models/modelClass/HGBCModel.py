@@ -12,8 +12,6 @@ class HGBCModel(IModel):
         # Transform the email and subject into TF-IDF feature vectors
         x1 = tfidfconverter.transform([email]).toarray()
         x2 = tfidfconverter.transform([subject]).toarray()
-        print(f"Shape of x1 (email vector): {x1.shape}")
-        print(f"Shape of x2 (subject vector): {x2.shape}")
 
         # Check if the dimensions are compatible
         if x1.shape[0] != x2.shape[0]:
@@ -21,9 +19,7 @@ class HGBCModel(IModel):
 
         # Concatenate the two vectors into one feature array
         X = np.concatenate((x1, x2), axis=1)
-        print(f"Shape of concatenated features (X): {X.shape}")
 
-        print(f"Shape of X_new: {X.shape}")
         y_pred = classifier.predict(X)
 
         analytics = {
@@ -35,6 +31,8 @@ class HGBCModel(IModel):
             "X_shape": X.shape,
             "prediction": y_pred
         }
-
+        print("yo")
+        print(analytics)
+        print(type(analytics))
         return analytics
 

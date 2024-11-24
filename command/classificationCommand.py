@@ -30,8 +30,6 @@ class ClassificationCommand(Command):
 
         if user_settings.verbose:
             print(f"[VERBOSE] Classifying email using selected models: {self.configuration.ml_models}")
-        if user_settings.explainable:
-            print("[EXPLAINABLE] The email classification will use the configured machine learning models.")
 
         classify_email()
 
@@ -46,8 +44,6 @@ class ConfigureCommand(Command):
         if user_settings.verbose:
             print(f"[VERBOSE] Executing ConfigureCommand with configuration: {self.configuration}")
 
-        if user_settings.explainable:
-            print("[EXPLAINABLE] The system is prompting the user to select machine learning models.")
 
         get_model_choice()
 
@@ -61,8 +57,6 @@ class AnalyticsCommand(Command):
 
         if user_settings.verbose:
             print("[VERBOSE] Executing AnalyticsCommand.")
-        if user_settings.explainable:
-            print("[EXPLAINABLE] This command provides analytics insights.")
 
         print("Analytics command executed.")
 
@@ -73,8 +67,6 @@ class ExitCommand(Command):
 
         if user_settings.verbose:
             print("[VERBOSE] Executing ExitCommand.")
-        if user_settings.explainable:
-            print("[EXPLAINABLE] Exiting the application after completing all tasks.")
 
         print("Exiting the application.")
         exit(0)

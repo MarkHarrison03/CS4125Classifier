@@ -7,6 +7,7 @@ from ModelFactory import ModelFactory
 @OutputDecorator([lambda:UserSettingsSingleton.get_instance().verbose])
 def evaluate_and_output(results):
     print("\nClassification Results:")
+    print(results)
     for model_name, result in results.items():
         if 'prediction' in result:
             print(f"- {model_name} Prediction: {result['prediction'].tolist()}")

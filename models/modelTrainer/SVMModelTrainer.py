@@ -29,7 +29,7 @@ X, y = preprocessor.preprocess_dataframe(
     summary_col="Ticket Summary",
     label_cols=["Type 1", "Type 2", "Type 3", "Type 4"]
 )
-print(f"Preprocessing completed. Shape of X: {X.shape}, Shape of y: {y.shape}\n")
+print(f"Preprocessing completed.\n")
 
 print("Splitting data into train and test sets...")
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1, random_state=0)

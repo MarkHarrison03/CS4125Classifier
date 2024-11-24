@@ -25,7 +25,6 @@ class inputDecorator:
                 for transformation in self.text_transformation
             ]
 
-            print("Resolved transformations:", resolved_transformations)
             if resolved_transformations[0] == True:
                 translator = GoogleTranslator(target=self.target_language)
                 try:
@@ -92,6 +91,5 @@ class NoiseRemoval:
         combined_pattern = "|".join(noise_patterns)
         cleaned_text = re.sub(combined_pattern, "", text.lower())
         cleaned_text = re.sub(r'\s+', ' ', cleaned_text).strip()
-        print("Cleaned text:", cleaned_text)
 
         return cleaned_text
