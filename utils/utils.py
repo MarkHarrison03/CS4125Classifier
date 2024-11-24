@@ -8,8 +8,10 @@ from decorator.decorator import log_function_call
 from decorator.inputDecorator import inputDecorator
 from strategy.classificationStrategies import QuickStrategy, VerboseStrategy, NoiseRemovalStrategy, TranslateStrategy, HighPerformanceStrategy
 import os
+from threading import Lock
 
-@inputDecorator([lambda: UserSettingsSingleton.get_instance().translate_text, lambda: UserSettingsSingleton.get_instance().remove_noise], 
+
+@inputDecorator([lambda: UserSettingsSingleton.get_instance().translate_text, lambda: UserSettingsSingleton.get_instance().remove_noise],
     target_language="en")
 @log_function_call
 def classify_email(subject, email):
@@ -40,18 +42,14 @@ def classify_email(subject, email):
     save_classification_to_csv(subject, email, results, selected_models=models)
 
 
-import csv
-import os
+csv_lock = Lock()
 
 
-import os
-import csv
-import numpy as np
-
-def save_classification_to_csv(subject, email, results, selected_models, all_models=None, filename="classification_results.csv"):
+def save_classification_to_csv(subject, email, results, selected_models, all_models=None,
+                               filename="classification_results.csv"):
     """
     Saves classification results to a CSV file with proper distribution into type-specific columns.
-    Ensures no double quotes are added in the CSV output and replaces double quotes with single quotes.
+    Ensures thread-safe writing to the file using a lock.
     """
     if all_models is None:
         all_models = ["HGBC", "SVM", "NB", "KNN", "CB"]
@@ -62,41 +60,40 @@ def save_classification_to_csv(subject, email, results, selected_models, all_mod
     # Prepare a single dictionary for the row
     row = {"subject": subject, "email": email}
 
+    # Process classification results for selected models
     for model_name in selected_models:
-        classifications = results.get(model_name, [])  # Results for this model (list of lists)
+        classifications = results.get(model_name, [])  # Results for this model (list of lists or strings)
+
         if isinstance(classifications, np.ndarray):
             classifications = classifications.tolist()  # Convert numpy array to a list
 
-        # Check and flatten extra nesting for "CB" or other models
+        # Flatten extra nesting for models like "CB"
         while len(classifications) > 0 and isinstance(classifications[0], list):
-            classifications = classifications[0]  # Unwrap one level of nesting
+            classifications = classifications[0]
 
-        for i in range(1, 5):  # Iterate over 4 types
+        # Iterate over 4 types and populate the row dictionary
+        for i in range(1, 5):
             if i <= len(classifications):  # Ensure the type index exists in the results
                 classification = classifications[i - 1]  # Get classification for this type
-                # Convert to string for CSV storage
-                if isinstance(classification, (list, np.ndarray)):
-                    row[f"{model_name}_Type{i}"] = ",".join(map(str, classification)) if classification else ""
-                else:
-                    row[f"{model_name}_Type{i}"] = str(classification) if classification else ""
+                # Convert to a string for CSV storage
+                row[f"{model_name}_Type{i}"] = ",".join(map(str, classification)) if isinstance(classification, (
+                list, np.ndarray)) else str(classification)
             else:
                 # Fill empty types with an empty string
                 row[f"{model_name}_Type{i}"] = ""
 
-    # Write the row to the CSV
+    # Write the row to the CSV file
     try:
-        file_exists = os.path.exists(filename) and os.path.getsize(filename) > 0
-        with open(filename, mode="a", newline="", encoding="utf-8") as file:
-            # Configure the CSV writer to avoid quoting
-            writer = csv.DictWriter(file, fieldnames=fieldnames, quoting=csv.QUOTE_NONE, escapechar='\\')
-            if not file_exists:  # If the file is new or empty, write the header
-                writer.writeheader()
-            writer.writerow(row)
-        print(f"Classification result saved to {filename}.")
+        with csv_lock:  # Ensure thread-safe access
+            file_exists = os.path.exists(filename) and os.path.getsize(filename) > 0
+            with open(filename, mode="a", newline="", encoding="utf-8") as file:
+                writer = csv.DictWriter(file, fieldnames=fieldnames, quoting=csv.QUOTE_NONE, escapechar='\\')
+                if not file_exists:  # If the file is new or empty, write the header
+                    writer.writeheader()
+                writer.writerow(row)
+            print(f"[INFO] Classification result saved to {filename}.")
     except Exception as e:
-        print(f"Error saving classification result to CSV: {e}")
-
-
+        print(f"[ERROR] Error saving classification result to CSV: {e}")
 
 @log_function_call
 def get_model_choice():
@@ -106,7 +103,7 @@ def get_model_choice():
     Allows the user to select one or more models and preprocessing options.
     Updates the global configuration accordingly.
     """
-    
+
     print("Would you like to use a preset strategy for classification, or customize your own?")
     print("1. Use a preset strategy")
     print("2. Customize your own strategy")
@@ -115,7 +112,7 @@ def get_model_choice():
         use_preset_model_choice()
     elif choice == "2":
         customize_model_choice()
-        
+
 def use_preset_model_choice():
         print("Please choose your preset strategy: ")
         print("1. Quick Strategy: Single, lightweight model with minimal pre and post processing")
@@ -123,7 +120,7 @@ def use_preset_model_choice():
         print("3. Noise Reduction Strategy: Three models are ran, with only noise reduction enabled")
         print("4. Translation Strategy: Tgree models are ran, with only translation enabled")
         print("5. High Performance Strategy: Two lightweight models are ran, with only noise reduction enabled")
-        
+
         choice = input("Enter your choice (1/2/3): ").strip()
         if choice == "1":
             strategy = QuickStrategy(settings_manager=UserSettingsSingleton.get_instance())
@@ -138,7 +135,7 @@ def use_preset_model_choice():
         else:
             print("Invalid choice! Please choose a valid strategy.")
             return  # Exit the function if invalid input is entered
-        
+
         strategy.configure_context()
         print("Preset strategy applied successfully.")
         print(UserSettingsSingleton.get_instance())
