@@ -27,6 +27,25 @@ class AnalyticsFacade:
             print(f"Error loading results from {self.results_file}: {e}")
             return []
 
+    def filter_results_by_models(self, results, model_names):
+        """
+        Filters the results to only include the selected models' columns.
+        """
+        filtered_results = []
+
+        for result in results:
+            filtered_row = {"subject": result.get("subject", ""), "email": result.get("email", "")}
+
+            for model_name in model_names:
+                for i in range(1, 5):  # Types 1 to 4
+                    column_key = f"{model_name}_Type{i}"
+                    if column_key in result:
+                        filtered_row[column_key] = result[column_key]
+
+            filtered_results.append(filtered_row)
+
+        return filtered_results
+
     def display_menu(self):
         """Displays the analytics menu and returns the user's choice."""
         print("\n=== Email Classification Analytics ===")
@@ -73,6 +92,9 @@ class AnalyticsFacade:
         """
         Counts the classification results grouped by type (Type 1, Type 2, Type 3, Type 4) for selected models.
         """
+        # Filter results for selected models
+        filtered_results = self.filter_results_by_models(results, model_names)
+
         grouped_counts = {
             "Type 1": Counter(),
             "Type 2": Counter(),
@@ -80,13 +102,12 @@ class AnalyticsFacade:
             "Type 4": Counter(),
         }
 
-        for result in results:
+        for result in filtered_results:
             for model_name in model_names:
                 for type_index, type_label in enumerate(["Type 1", "Type 2", "Type 3", "Type 4"], start=1):
                     column_key = f"{model_name}_Type{type_index}"  # e.g., HGBC_Type1, HGBC_Type2, etc.
-                    if column_key in result and result[column_key] != "N/A":
-                        # Split and normalize classifications
-                        categories = result[column_key].split(",") if result[column_key] else []
+                    if column_key in result and result[column_key].strip():
+                        categories = result[column_key].split(",")
                         for category in categories:
                             grouped_counts[type_label][category.strip()] += 1
 
@@ -124,15 +145,23 @@ class AnalyticsFacade:
             print("No results available to visualize.")
             return
 
-        grouped_counts = self.compute_grouped_counts(model_names, results)
+        # Compute grouped counts for selected models
+        filtered_results = self.filter_results_by_models(results, model_names)
+        grouped_counts = self.compute_grouped_counts(model_names, filtered_results)
         if not grouped_counts:
             print("No valid classifications available to visualize.")
             return
 
-        categories = list(grouped_counts.keys())
-        counts = list(grouped_counts.values())
+        # Flatten the Counter into categories and counts
+        categories = []
+        counts = []
+        for type_label, counter in grouped_counts.items():
+            for category, count in counter.items():
+                categories.append(f"{type_label} - {category}")
+                counts.append(count)
 
-        plt.figure(figsize=(10, 6))
+        # Generate the bar chart
+        plt.figure(figsize=(12, 8))
         plt.bar(categories, counts, color="skyblue")
         plt.xlabel("Classifications")
         plt.ylabel("Counts")
@@ -150,14 +179,10 @@ class AnalyticsFacade:
             print("No results available to display.")
             return
 
+        # Filter results for selected models
+        filtered_results = self.filter_results_by_models(results, model_names)
+
         print("\n=== Classification Results ===")
-        for result in results:
-            filtered_result = {
-                key: result[key]
-                for key in ["subject", "email"] + model_names
-                if key in result and result[key] not in ["", "N/A"]
-            }
-            if filtered_result:
-                print(filtered_result)
-            else:
-                print("No relevant results for the selected models.")
+        for result in filtered_results:
+            print(result)
+

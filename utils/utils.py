@@ -44,9 +44,14 @@ import csv
 import os
 
 
+import os
+import csv
+import numpy as np
+
 def save_classification_to_csv(subject, email, results, selected_models, all_models=None, filename="classification_results.csv"):
     """
     Saves classification results to a CSV file with proper distribution into type-specific columns.
+    Ensures no double quotes are added in the CSV output and replaces double quotes with single quotes.
     """
     if all_models is None:
         all_models = ["HGBC", "SVM", "NB", "KNN", "CB"]
@@ -61,6 +66,10 @@ def save_classification_to_csv(subject, email, results, selected_models, all_mod
         classifications = results.get(model_name, [])  # Results for this model (list of lists)
         if isinstance(classifications, np.ndarray):
             classifications = classifications.tolist()  # Convert numpy array to a list
+
+        # Check and flatten extra nesting for "CB" or other models
+        while len(classifications) > 0 and isinstance(classifications[0], list):
+            classifications = classifications[0]  # Unwrap one level of nesting
 
         for i in range(1, 5):  # Iterate over 4 types
             if i <= len(classifications):  # Ensure the type index exists in the results
@@ -78,13 +87,15 @@ def save_classification_to_csv(subject, email, results, selected_models, all_mod
     try:
         file_exists = os.path.exists(filename) and os.path.getsize(filename) > 0
         with open(filename, mode="a", newline="", encoding="utf-8") as file:
-            writer = csv.DictWriter(file, fieldnames=fieldnames)
+            # Configure the CSV writer to avoid quoting
+            writer = csv.DictWriter(file, fieldnames=fieldnames, quoting=csv.QUOTE_NONE, escapechar='\\')
             if not file_exists:  # If the file is new or empty, write the header
                 writer.writeheader()
             writer.writerow(row)
         print(f"Classification result saved to {filename}.")
     except Exception as e:
         print(f"Error saving classification result to CSV: {e}")
+
 
 
 @log_function_call
