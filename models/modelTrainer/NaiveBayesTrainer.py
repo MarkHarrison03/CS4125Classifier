@@ -10,9 +10,21 @@ import joblib
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
 from data_preprocessor.data_preprocessor import DataPreprocessor
 
-print("Loading dataset...")
-df = pd.read_csv("AppGallery.csv")
-print(f"Dataset loaded with {df.shape[0]} rows and {df.shape[1]} columns.\n")
+print("Loading datasets...")
+df = pd.read_csv("../../AppGallery.csv")
+purchasing_df = pd.read_csv("../../purchasing.csv")
+print(f"AppGallery dataset: {df.shape[0]} rows, {df.shape[1]} columns.")
+print(f"Purchasing dataset: {purchasing_df.shape[0]} rows, {purchasing_df.shape[1]} columns.")
+
+print("Concatenating datasets...")
+# Ensure the required columns are aligned in both datasets
+required_columns = ["Interaction content", "Ticket Summary", "Type 1", "Type 2", "Type 3", "Type 4"]
+for col in required_columns:
+    if col not in purchasing_df.columns:
+        purchasing_df[col] = None  # Fill missing columns with None
+
+df = pd.concat([df[required_columns], purchasing_df[required_columns]], ignore_index=True)
+print(f"Combined dataset: {df.shape[0]} rows, {df.shape[1]} columns.")
 
 preprocessor = DataPreprocessor(max_features=2000)
 
