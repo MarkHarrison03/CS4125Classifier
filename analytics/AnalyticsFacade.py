@@ -2,7 +2,7 @@ import csv
 from collections import Counter
 import matplotlib.pyplot as plt
 import matplotlib
-matplotlib.use("MacOSX")
+matplotlib.use("tkagg")
 
 class AnalyticsFacade:
     def __init__(self, results_file="classification_results.csv"):
