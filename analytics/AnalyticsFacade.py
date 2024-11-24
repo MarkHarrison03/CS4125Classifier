@@ -65,6 +65,32 @@ class AnalyticsFacade:
         print(f"Grouped Counts: {grouped_counts}")
         return grouped_counts
 
+    def compute_model_statistics(self, model_names):
+        """
+        Calculates the percentage distribution of classifications for each type.
+        """
+        results = self.load_results_from_csv()
+        if not results:
+            print("No results available to compute statistics.")
+            return {}
+
+        grouped_counts = self.compute_grouped_counts(model_names, results)
+        total_by_type = {type_label: sum(counts.values()) for type_label, counts in grouped_counts.items()}
+
+        stats = {}
+        for type_label, counts in grouped_counts.items():
+            total = total_by_type[type_label]
+            stats[type_label] = {}
+            if total > 0:
+                for classification, count in counts.items():
+                    percentage = (count / total) * 100
+                    stats[type_label][classification] = percentage
+            else:
+                stats[type_label] = {"No data": 0.0}
+
+        print(f"Computed Statistics: {stats}")
+        return stats
+
     def generate_visualization(self, model_names):
         results = self.load_results_from_csv()
         if not results:
