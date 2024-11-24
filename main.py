@@ -18,7 +18,6 @@ def main_menu():
     print("3. analytics")
     print("4. Exit")
     return input("Choose an option (1/2/3/4): ").strip()
-print("hi")
 configuration = UserSettingsSingleton.get_instance()
 classify_command = ClassificationCommand(configuration)
 configure_command = ConfigureCommand(configuration)
