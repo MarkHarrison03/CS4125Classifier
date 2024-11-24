@@ -118,8 +118,8 @@ def get_model_choice():
         
 def use_preset_model_choice():
         print("Please choose your preset strategy: ")
-        print("1. Quick Strategy: Single, lightweight model with minimal pre and post processing")
-        print("2. Verbose Strategy: All models are ran, with all pre and post processing options enabled")
+        print("1. Quick Strategy: Single, lightweight model with minimal preprocessing")
+        print("2. Verbose Strategy: All models are ran, with all preprocessing options enabled")
         print("3. Noise Reduction Strategy: Three models are ran, with only noise reduction enabled")
         print("4. Translation Strategy: Tgree models are ran, with only translation enabled")
         print("5. High Performance Strategy: Two lightweight models are ran, with only noise reduction enabled")
@@ -192,25 +192,10 @@ def customize_model_choice():
             elif choice.strip() == "2":
                 noise_removal = True
 
-    print("\nChoose postprocessing settings:")
-    print("1. Verbose output")
-    print("2. Explainable AI")
-    choice_post = input("Enter your choice (e.g., 2): ").strip()
-
-    verbose = False
-    explainable = False
-    if choice_post:
-        choices = choice_post.split(",")
-        for choice in choices:
-            if choice.strip() == "1":
-                verbose = True
-            elif choice.strip() == "2":
-                explainable = True
-
     for model in selected_models:
         ensure_model_exists(model)
 
-    configuration.update_settings(selected_models, translate, noise_removal, verbose, explainable)
+    configuration.update_settings(selected_models, translate, noise_removal)
     print("\nConfiguration updated:")
     print(configuration)
 
