@@ -2,11 +2,14 @@ import functools
 from deep_translator import GoogleTranslator
 import re
 
+
 class TextTransformation:
     def translate(self, text):
         raise NotImplementedError
+
     def clean(self, text):
         raise NotImplementedError
+
 
 class inputDecorator:
     def __init__(self, text_transformation: list, target_language="en"):
@@ -15,39 +18,37 @@ class inputDecorator:
 
     def __call__(self, func):
         @functools.wraps(func)
-        def wrapper(*args, **kwargs):
-            subject = input("Please enter the subject line: ").strip()
-            email = input("Please enter the email body text: ").strip()
-
-            # Dynamically resolve transformation settings
+        def wrapper(subject, email, *args, **kwargs):
             resolved_transformations = [
                 transformation() if callable(transformation) else transformation
                 for transformation in self.text_transformation
             ]
 
-            print("Resolved transformations:", resolved_transformations)
-            if resolved_transformations[0] == True:
+            if resolved_transformations[0]:
                 translator = GoogleTranslator(target=self.target_language)
                 try:
                     subject = translator.translate(subject)
                     email = translator.translate(email)
-                    print("Translated:", subject, email)
+                    print(f"Translated: Subject: {subject}, Email: {email}")
                 except Exception as e:
                     print(f"Translation failed: {e}")
 
-            if resolved_transformations[1] == True:
-                noiseremover = NoiseRemoval()
-                subject = noiseremover.clean(subject)
-                email = noiseremover.clean(email)
+            if resolved_transformations[1]:
+                noise_remover = NoiseRemoval()
+                subject = noise_remover.clean(subject)
+                email = noise_remover.clean(email)
+                print(f"Noise Removed: Subject: {subject}, Email: {email}")
 
             return func(subject, email, *args, **kwargs)
 
         return wrapper
 
+
 class NoiseRemoval:
     @staticmethod
     def translate(text):
         return text
+
     @staticmethod
     def clean(text):
         noise_patterns = [
